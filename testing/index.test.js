@@ -37,7 +37,7 @@ describe(__filename, function() {
 	
 	describe("lexer", function() {
 		it("should handle basic tags", function() {
-			assert.equal(goatee._lexer("{{foo}} {{bar}} {{:test.something}} content {{/test.something}}"), "ϾfooϿ ϾbarϿ Ͼ:test.somethingϿ content Ͼ/test.somethingϿ");
+			assert.equal(goatee._lexer("{{foo}} {{bar}} {{:test.something}} () content {{/test.something}}"), "ϾfooϿ ϾbarϿ Ͼ:test.somethingϿ () content Ͼ/test.somethingϿ");
 		});
 		
 		it("should handle parens", function() {

@@ -28,16 +28,9 @@ define(function(require, exports, module) {
 			for(var i = 0; i < temp.length; i++) {
 				var c = temp[i];
 				
-				if (!inTag && c === openChar) {
-					inTag = true;
-				} else if (inTag) {
+				if (inTag) {
 					// inside tag
-					if (!inParen && c === "(") {
-						inParen = true;
-						openCount++;
-						temp.splice(i, 0, parenChar);
-						i++;
-					} else if (inParen) {
+					if (inParen) {
 						if (c === openChar) {
 							temp.splice(i, 1, "{{");
 						} else if (c === closeChar) {
@@ -64,7 +57,18 @@ define(function(require, exports, module) {
 						} else if (c === "'") {
 							inSingle = true;
 						}
+					} else if (c === "(") {
+						// in tag, not in parent, open char
+						inParen = true;
+						openCount++;
+						temp.splice(i, 0, parenChar);
+						i++;
+					} else if (c === closeChar) {
+						inTag = false;
 					}
+				} else if (c === openChar) {
+					// not in tag, open char
+					inTag = true;
 				}
 			}
 			
