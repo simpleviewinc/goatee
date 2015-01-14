@@ -60,9 +60,69 @@ Coming later
 
 ## Tags
 
-### General
+### Tag Quick Reference
 
-0. If a variable referenced in a tag doesn't exist, Goatee will simply return `""` for the contents of that tag. No error will be thrown. This removes the need to conditionally check that every variable and it's parent is not undefined.
+0. `{{key}}` - Output variable
+1.  `{{:key}}` - Positive conditional.
+2.  `{{!key}}` - Negative conditional.
+3. `{{>key}}`- Partial.
+4. `{{+key}}` - Custom partial.
+5. `{{*key}}` - Global data.
+6.  `{{#key}}` - Section, object or array.
+7.  `{{%key}}` - HTML encode (`><&"`)
+8.  `{{@key}}` - Extra data during array iteration.
+9.  `{{~key}}` - Helpers.
+10.  `{{$}}` - Preserve.
+
+### Understanding tags
+
+All tags follows the pattern `{{[operator][lookup][locatorChain]}}`.
+
+`operators` are `: ! + > $ %`. They instruct the system to DO something with the data, such as reaching inside, checking if it's true. When no operator is present the content at the locator will be output. Tags can never have more than one operator!
+
+`lookup` are `* @ ~`. They instruct the system where to look for the data.
+
+`locatorChain` is a dot seperated path to access the variable. Locators match pretty much 1 to 1 to native javascript. In example in goatee a locator of `foo().bar.baz()` works nearly the same as it would if it was done in JS. The only caveat is that if any step of chain returns `undefined` the system will not throw an error, instead the tag will return falsy.
+
+ Tag types which have a closing and opening tag such as positive conditional, negative conditional, and custom partial do not require that the closing tag matches the name.
+    3. `{{#key}} {{/key}}` is the preferred method because it matches HTML syntax.
+    4. `{{#key}} {{/}}` also works and is used often when the opening tag is very long, such as when using a helper expression.
+
+Valid Tag Examples
+
+0. `{{foo}}` - Output a simple variable
+0.  `{{%foo}}` - Output a variable and encode.
+0. `{{#foo().baz}} {{/}}` - Iterate over the value at `foo().baz` in normal data.
+0.  `{{#*data.bar()}} {{/}}` - Iterate over the value at `globalData.bar`.
+0. `{{foo(data.bar).baz}}` - Output a variable which is contained by calling the function passed at `foo` with an argument which is the value passed at `bar` and then get `baz` out of that result.
+
+### JS Expressions
+
+You can execute arbitrary javascript within certain tags. In doing so it will `eval` the contents but many global variables are not accessible such as `require` `window` `setTimeout` etc.
+
+**NOTE:** While in JS expressions all of your data is namespaced. In expressions goatee `lookups` are replaced with variable names.
+
+0. `data.` - Accesses the data at the current context.
+1. `global.` - Access the data in the globalData context (`*`).
+2.  `helpers.` - Access the helpers (`~`).
+3.  `extra.` - Access the extraData (`@`).
+
+**NOTE:** JS expressions can not return async.
+
+Example, output a formatted `moment` object.
+```html
+{{moment(data.myData).format("LLLL")}}
+```
+JS
+```js
+var result = goatee.fill(template, { moment : moment, myData : new Date(2011, 1, 1) });
+```
+Result. Notice how we pass in the moment object and the date. The key myData is accessed using `data.myData` within the JS expression. **All or your data is namespaced within JS expressions!**
+```html
+Tuesday, February 1, 2011 12:00 AM
+```
+
+## Tag Reference
 
 ### Output variable `{{var}}`
 
@@ -370,11 +430,19 @@ Result, notice how the template tags within the script tag remain. This is becau
 </script>
 ```
 
-### Helpers
+## Helpers
 
+Helpers are a `lookup` area which provides access to some useful functions as well as being a place where you can add plugins allowing you to pass additional functionality into your template system.
 
+### helpers.equal `{{:~equal(var1, var2)}} {{/}}`
 
+Compares the two values and returns if they are equal. The value of `var1` and `var2` can be any JS expression.
 
+Note: There is no requirement that you use a `:` or `!` with the `equal` helper, but it's quite common unless you actually want to output the word `true` or `false`.
+
+```js
+
+```
 
 
 
