@@ -6,9 +6,20 @@
 
 Powerful yet simple templating system with Mustache style syntax and many more features. Works in node and browser with requirejs.
 
+# Documentation
+
+* [Api Documentation](#api_documentation)
+    * [Fill](#api_documentation_fill) 
+    * [Goatee](#api_documentation_goatee)
+* [Tags](#tags)
+    * [Quick Reference](#tags_quick_reference)
+    * [Understanding Tags](#tags_understanding_tags)
+    * [JS Expressions](#tags_js_expressions)
+* [Tag Reference](#tag_reference) 
+
 # Features
 
-0. Works client-side and within Node.
+0. Works client-side (traditional and requirejs), and within Node
 0. Super simple syntax.
 0. Fills templates based on strings, does not require any specific folder structure.
 0. Similar syntax to Mustache and Handlebars.
@@ -41,8 +52,10 @@ require(["goatee"], function(goatee) {
 </script>
 ```
 
+<a name="api_documentation">
 # API Documentation
 
+<a name="api_documentation_fill">
 ### goatee.fill(templateString, data, partials, globalData)
 
 Fills a template with data.
@@ -54,6 +67,7 @@ Returns `string`.
 * `partials` - `object` - `default {}` - Object with keys containing partials, sub-templates to be used within the template. See partials for more information.
 * `globalData` - `object` - `defaults to value passed to data` - Object with global data which can be accessed anywhere within the template.
 
+<a name="api_documentation_goatee">
 ### goatee.Goatee
 
 You can add plugins to Goatee allowing you to access complex code within your templates. If you need to do so you will need to create an instance of goatee to store your plugins.
@@ -94,31 +108,35 @@ module.exports = g;
 
 Now, downstream you can simply `require("myGoatee.js")` and it will have the plugins loaded in for you.
 
+<a name="tags">
 ## Tags
 
+<a name="tags_quick_reference">
 ### Tag Quick Reference
 
 0. `{{key}}` - Output variable
-1.  `{{:key}}` - Positive conditional.
-2.  `{{!key}}` - Negative conditional.
+1.  `{{:key}} {{/key}}` - Positive conditional.
+2.  `{{!key}} {{/key}}` - Negative conditional.
 3. `{{>key}}`- Partial.
-4. `{{+key}}` - Custom partial.
+4. `{{+key}} {{/key}}` - Custom partial.
 5. `{{*key}}` - Global data.
-6.  `{{#key}}` - Section, object or array.
+6.  `{{#key}} {{key}}` - Section, object or array.
 7.  `{{%key}}` - HTML encode (`><&"`)
 8.  `{{@key}}` - Extra data during array iteration.
 9.  `{{~key}}` - Helpers.
-10.  `{{$}}` - Preserve.
+10.  `{{$}} {{/key}}` - Preserve.
+11.  `{{---key}}` - Reach up X number of scopes based on count of `-`.
 
+<a name="tags_understanding_tags">
 ### Understanding tags
 
 All tags follows the pattern `{{[operator][lookup][locatorChain]}}`.
 
-`operators` are `: ! + > $ %`. They instruct the system to DO something with the data, such as reaching inside, checking if it's true. When no operator is present the content at the locator will be output. Tags can never have more than one operator!
+`operators` are `: ! + > $ %`. They instruct the system to DO something with the data, such as reaching inside, checking if it's true. When no operator is present the content at the locator will be output. Tags can never have more than one operator! 
 
-`lookup` are `* @ ~`. They instruct the system where to look for the data.
+`lookup` are `* @ ~`. They instruct the system where to look for the data. The `lookup` should always happen after the `operator`, e.g. `{{#~var.foo}} {{/}}`.
 
-`locatorChain` is a dot seperated path to access the variable. Locators match pretty much 1 to 1 to native javascript. In example in goatee a locator of `foo().bar.baz()` works nearly the same as it would if it was done in JS. The only caveat is that if any step of chain returns `undefined` the system will not throw an error, instead the tag will return falsy.
+`locatorChain` is a dot seperated path to access the variable . Locators match pretty much 1 to 1 to native javascript code. In example in goatee a locator of `foo().bar.baz()` works nearly the same as it would if it was done in JS. The only caveat is that if any step of chain returns `undefined` the system will not throw an error, instead the tag will return falsy.
 
 **Casing:** When the `locatorChain` is processing, it will prefer keys which have an exact case match, `{{FoO}}` to data `FoO`. In the event there is not a case match it will use a data key who's `toLowerCase()` matches the `toLowerCase()` of the locator piece, such as `{{FoO}}` matching data `foO` because they both have the same `toLowerCase()` of `foo`.
 
@@ -133,12 +151,14 @@ Valid Tag Examples
 0. `{{#foo().baz}} {{/}}` - Iterate over the value at `foo().baz` in normal data.
 0.  `{{#*data.bar()}} {{/}}` - Iterate over the value at `globalData.bar`.
 0. `{{foo(data.bar).baz}}` - Output a variable which is contained by calling the function passed at `foo` with an argument which is the value passed at `bar` and then get `baz` out of that result.
+0. `{{:~var.test}} {{/}}` - Test if a helper declared var is truthy.
 
+<a name="tags_js_expressions">
 ### JS Expressions
 
 You can execute arbitrary javascript within certain tags. In doing so it will `eval` the contents but many global variables are not accessible such as `require` `window` `setTimeout` etc.
 
-**NOTE:** While in JS expressions all of your data is namespaced. In expressions goatee `lookups` are replaced with variable names.
+**NOTE:** While in JS expressions all of your data is namespaced.
 
 0. `data.` - Accesses the data at the current context.
 1. `global.` - Access the data in the globalData context (`*`).
@@ -160,6 +180,7 @@ Result. Notice how we pass in the moment object and the date. The key myData is 
 Tuesday, February 1, 2011 12:00 AM
 ```
 
+<a name="tag_reference">
 ## Tag Reference
 
 ### Output variable `{{var}}`
@@ -218,7 +239,7 @@ The following cases will run the contents of the tag.
 
 Sections are used for processing arrays and objects, changing the current context to new context.
 
-### Objects
+#### Objects
 
 0. If the value is an object, then the context will become what is at the value of var.
 
@@ -468,6 +489,38 @@ Result, notice how the template tags within the script tag remain. This is becau
 </script>
 ```
 
+### Reaching Up `{{--foo}}`
+
+You can use globalData to reach up to the top context. Occasionally you don't want to go all the way to the top, you only want to go up one or two levels. In this case you can prefix your locator and it will go up one level for every `-`.
+
+```html
+{{#foo}}
+    {{#bar}}
+        Level1: {{--level}}
+        Level2: {{-level}}
+        Level3: {{level}}
+    {{/bar}}
+{{/foo}}
+```
+```js
+var data = {
+    foo : {
+        bar : {
+            level : "three"
+        },
+        level : "two"
+    },
+    level : "one"
+}
+var result = goatee.fill(template, data);
+```
+Result. In this case we have moved into `foo` and `bar` but we are able to reach up multiple scopes and access data above our current context using the `-`. 
+```html
+Level1: one
+Level2: two
+Level3: three
+```
+
 ## Helpers
 
 Helpers are a `lookup` area which provides access to some useful functions as well as being a place where you can add plugins allowing you to pass additional functionality into your template system.
@@ -609,4 +662,3 @@ Result. Hotels 2 and 3 are filtered out because they are `published` is `false` 
 <div>Invalid</div>
 <div>Hotel 4</div>
 ```
-
