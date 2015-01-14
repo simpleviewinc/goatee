@@ -56,7 +56,43 @@ Returns `string`.
 
 ### goatee.Goatee
 
-Coming later
+You can add plugins to Goatee allowing you to access complex code within your templates. If you need to do so you will need to create an instance of goatee to store your plugins.
+
+```js
+var g = new goatee.Goatee();
+g.fill("{{foo}}", { foo : "test" }) === "test";
+```
+
+### Adding Plugins `Goatee.prototype.addPlugin("name", plugin)`
+
+```js
+var lodash = require("lodash");
+var g = new goatee.Goatee();
+g.addPlugin("lodash", lodash);
+
+// output a random element from the array using lodash.sample
+g.fill("{{~plugins.lodash.sample(data.arr)}}", { data : [1,2,3] });
+```
+
+### Locking
+
+Often in JS you'll want to create a consistent Goatee entity which you pass around to multiple places so that they already have their plugins loaded in. In this situation you will want to lock Goatee so that code cannot add more plugins later on. If this isn't done, it's possible for one branch of your code to add the plugin, but then another plugin depend on it. This will cause odd failures that will work sometimes and not others depending on which code path is run first.
+
+myGoatee.js
+```js
+var goatee = require("goatee");
+var lodash = require("lodash");
+var moment = require("moment");
+
+var g = new goatee.Goatee();
+g.addPlugin("lodash", lodash);
+g.addPlugin("moment", moment);
+// lock the instance so that downstream code can't add more plugins
+g.lock();
+module.exports = g;
+```
+
+Now, downstream you can simply `require("myGoatee.js")` and it will have the plugins loaded in for you.
 
 ## Tags
 
@@ -83,6 +119,8 @@ All tags follows the pattern `{{[operator][lookup][locatorChain]}}`.
 `lookup` are `* @ ~`. They instruct the system where to look for the data.
 
 `locatorChain` is a dot seperated path to access the variable. Locators match pretty much 1 to 1 to native javascript. In example in goatee a locator of `foo().bar.baz()` works nearly the same as it would if it was done in JS. The only caveat is that if any step of chain returns `undefined` the system will not throw an error, instead the tag will return falsy.
+
+**Casing:** When the `locatorChain` is processing, it will prefer keys which have an exact case match, `{{FoO}}` to data `FoO`. In the event there is not a case match it will use a data key who's `toLowerCase()` matches the `toLowerCase()` of the locator piece, such as `{{FoO}}` matching data `foO` because they both have the same `toLowerCase()` of `foo`.
 
  Tag types which have a closing and opening tag such as positive conditional, negative conditional, and custom partial do not require that the closing tag matches the name.
     3. `{{#key}} {{/key}}` is the preferred method because it matches HTML syntax.
@@ -404,7 +442,7 @@ Result
 <a href="http://www.bing.com" target="_top">Bing</a>
 ```
 
-### Preserving templates `{{$}}`
+### Preserving templates `{{$}} content {{/}}`
 
 There are times when you have a goatee template embedded inside a goatee template and you do not want that template processed right away. A common use-case is when a template is processed server-side but contains a template which is going to be used client-side. If that client-side template isn't preserved, then the contents of that sub-template will end up executed.
 
@@ -434,15 +472,141 @@ Result, notice how the template tags within the script tag remain. This is becau
 
 Helpers are a `lookup` area which provides access to some useful functions as well as being a place where you can add plugins allowing you to pass additional functionality into your template system.
 
-### helpers.equal `{{:~equal(var1, var2)}} {{/}}`
+### helpers.equal `{{:~equal(var1, var2)}} content {{/}}`
 
-Compares the two values and returns if they are equal. The value of `var1` and `var2` can be any JS expression.
+Compares the two values and returns if they are equal. The value of `var1` and `var2` can be any JS expression. This is often used to see if a value in a variable matches a specific string or number. Another common use case is checking if multiple conditions are true.
 
 Note: There is no requirement that you use a `:` or `!` with the `equal` helper, but it's quite common unless you actually want to output the word `true` or `false`.
 
+Template
+```html
+{{#items}}
+    <div class="item">
+        {{:~equal(data.rank, 1)}}<img src="{{image}}"/>{{/}}
+        <h2>{{title}}</h2>
+    </div>
+{{/items}}
+```
+JS
 ```js
-
+var data = {
+    items : [
+        { title : "Hotel 1", rank : 1, image : "foo.png" },
+        { title : "Hotel 2", rank : 2, image : "bar.png" },
+        { title : "Hotel 3", rank : 1, image : "baz.png" }
+    ]
+}
+var result = goatee.fill(template, data);
+```
+Result. In this case we only want to display the image if `rank === 1`. 
+```html
+<div class="item">
+    <img src="foo.png"/>
+    <h2>Hotel 1</h2>
+</div>
+<div class="item">
+    <h2>Hotel 2</h2>
+</div>
+<div class="item">
+    <img src="baz.png"/>
+    <h2>Hotel 3</h2>
+</div>
 ```
 
+### helpers.contains `{{:~contains(arr1, item1)}} content {{/}}`
 
+Contains is a shorthand method for checking if an array contains an item. This is basically a wrapper for `Array.prototype.indexOf`. 
+
+```js
+var template = '{{~contains(data.arr, 5)}}Yes{{/contains}}';
+var result1 = goatee.fill(template, { arr : [1,2,3] });
+result1 === "";
+
+var result2 = goatee.fill(template, { arr : [1,2,5,3] });
+result1 === "Yes";
+```
+
+### helpers.exec `{{~exec(expression or function)}}`
+
+Helpers.exec is used when you need to execute an arbitrary function or JS expression. The content of exec can either be an anonymouse function or an expression.
+
+Passing an anonymous function
+```js
+var template = '{{~exec(function() { return 'yes'; })}}';
+var result = goatee.fill(template, {});
+result === "yes";
+```
+Passing a JS expression
+```js
+var template = '{{~exec(JSON.stringify(data))}}';
+var result = goatee.fill(template, { date : new Date(2011, 1, 1) });
+result === '{"date":"2011-02-01T07:00:00.000Z"}';
+```
+
+### helpers.log `{{~log(expression or function)}}`
+
+Log is used to dump a variable to the console. This is helpful when you are not aware what variables your template has at it's disposal.
+
+Log current context data
+```html
+{{~log(data)}}
+```
+
+Log all the variables
+```html
+{{~log(data, global, helpers, extra)}}
+```
+
+### helpers.partial `{{~partial("name")}}`
+
+Outputs the contents of a partial as a string. Using this method will not execute that partial, it will output it's content as a plain string. A common use case is if you have a partial template which is intended to be passed to the front-end to be used there.
+
+```html
+<script type="text/template" id="myTemplate">
+    {{~partial("test")}}
+</script>
+```
+```js
+var result = goatee.fill(template, {}, { test : "myPartial {{key}}" });
+```
+Result. The partial is output unprocessed, so that a client-side goatee can pick it up and use it.
+```html
+<script type="text/template" id="myTemplate">
+    myPartial {{key}}
+</script>
+```
+
+### helpers.setVar `{{~setVar("name", content)}}`
+
+This method allows you to set aside data for use somewhere within the template. This can help you achieve complex `if` `else` statements. It can also be useful for retaining information during loops.
+
+Set aside a variable for use in `if`, `else`.
+```html
+{{#items}}
+    {{~setVar("valid", data.published === true && (new Date()).getTime() > data.startdate.getTime())}}
+    {{:~var.valid}}
+        <div>{{title}}</div>
+    {{/}}
+    {{!~var.valid}}
+        <div>Invalid</div>
+    {{/}}
+{{/items}}
+```
+JS
+```js
+var data = [
+    { title : "Hotel 1", published : true, startdate : new Date(2011, 1, 1) },
+    { title : "Hotel 2", published : false, startdate : new Date(2020, 1, 1) },
+    { title : "Hotel 3", published : true, startdate : new Date(2020, 1, 1) },
+    { title : "Hotel 4", published : true, startdate : new Date(2012, 1, 1) }
+];
+var result = goatee.fill(template, data);
+```
+Result. Hotels 2 and 3 are filtered out because they are `published` is `false` or their `startdate` is in the future.
+```html
+<div>Hotel 1</div>
+<div>Invalid</div>
+<div>Invalid</div>
+<div>Hotel 4</div>
+```
 

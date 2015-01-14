@@ -7,6 +7,74 @@ if (typeof exports === 'object' && typeof define !== 'function') {
 
 define(function(require, exports, module) {
 	(function() {
+		var openChar = "Ͼ";
+		var closeChar = "Ͽ";
+		var parenChar = "Ԓ";
+		
+		// lexes the template to detect opening and closing tags and parens
+		var lexer = function(html) {
+			// convert open close to single chars to make algorithm easier
+			var temp = html.replace(/\{\{/g, openChar).replace(/\}\}/g, closeChar).split("");
+			
+			var marks = [];
+			
+			var inTag = false;
+			var inParen = false;
+			var inSingle = false;
+			var inDouble = false;
+			
+			var openCount = 0;
+			
+			for(var i = 0; i < temp.length; i++) {
+				var c = temp[i];
+				
+				if (!inTag && c === openChar) {
+					inTag = true;
+				} else if (inTag) {
+					// inside tag
+					if (!inParen && c === "(") {
+						inParen = true;
+						openCount++;
+						temp.splice(i, 0, parenChar);
+						i++;
+					} else if (inParen) {
+						if (c === openChar) {
+							temp.splice(i, 1, "{{");
+						} else if (c === closeChar) {
+							temp.splice(i, 1, "}}");
+						} else if (inSingle && c === "'") {
+							inSingle = false;
+						} else if (inSingle) {
+							// inside single do nothing
+						} else if (inDouble && c === '"') {
+							inDouble = false;
+						} else if (inDouble) {
+							// inside double do nothing
+						} else if (c === "(") {
+							openCount++;
+						} else if (c === ")") {
+							openCount--;
+							if (openCount === 0) {
+								inParen = false;
+								temp.splice(i, 0, parenChar);
+								i++;
+							}
+						} else if (c === '"') {
+							inDouble = true;
+						} else if (c === "'") {
+							inSingle = true;
+						}
+					}
+				}
+			}
+			
+			return temp.join("");
+		}
+		
+		var unlex = function(html) {
+			return html.replace(/Ͼ/g, "{{").replace(/Ͽ/g, "}}").replace(/Ԓ/g, "");
+		}
+		
 		var fill = function(html, data, partials, globalData, plugins) {
 			if (typeof partials == "undefined") {
 				partials = {};
@@ -18,18 +86,20 @@ define(function(require, exports, module) {
 				data = {};
 			}
 			
-			var context = getTemplateContext(html);
+			var lexedHtml = lexer(html);
+			var context = getTemplateContext(lexedHtml);
 			var myPartials = {};
 			for(var i in partials) {
+				var temp = lexer(partials[i]);
 				myPartials[i] = {
-					context : getTemplateContext(partials[i]),
-					html : partials[i]
+					context : getTemplateContext(temp),
+					html : temp
 				};
 			}
 			
 			var helpers = new Helpers({ partials : myPartials, plugins : plugins || {} });
 			
-			return processTags(html, context, [ data ], myPartials, {}, globalData, helpers);
+			return processTags(lexedHtml, context, [ data ], myPartials, {}, globalData, helpers);
 		};
 		
 		var getTemplateContext = function(html) {
@@ -46,7 +116,7 @@ define(function(require, exports, module) {
 			var myContext = context;
 			var previousContext = [];
 			while(true) {
-				var matches = currentHTML.match(/\{\{([\$#!:\/\>\+%]?)(-*?)([~\*@]?)((\w+(\(.*?\))?\.|\w+(\(.*?\))?)*)\}\}/);
+				var matches = currentHTML.match(/Ͼ([\$#!:\/\>\+%]?)(-*?)([~\*@]?)((\w+(Ԓ\([\s\S]*?Ԓ\))?\.|\w+(Ԓ\([\s\S]*?Ԓ\))?)*)Ͽ/);
 				
 				if (matches == null) {
 					break;
@@ -56,7 +126,7 @@ define(function(require, exports, module) {
 					var labelArr = [];
 					var temp = matches[4];
 					while(true) {
-						var termMatch = temp.match(/(\w+)(\(.*?\))?(\.|$)/);
+						var termMatch = temp.match(/(\w+)(Ԓ\([\s\S]*?Ԓ\))?(\.|$)/);
 						
 						if (termMatch === null) {
 							break;
@@ -68,7 +138,7 @@ define(function(require, exports, module) {
 						
 						if (termMatch[2] !== undefined) {
 							// extract the contents of a function call eg: foo(bar, baz)
-							term.argString = termMatch[2].replace(/^\(/, "").replace(/\)$/, "");
+							term.argString = termMatch[2].replace(/^Ԓ\(/, "").replace(/Ԓ\)$/, "");
 						}
 						
 						temp = temp.replace(termMatch[0], "");
@@ -118,7 +188,7 @@ define(function(require, exports, module) {
 				}
 				
 				if (context.tags[i].command === "$") {
-					returnArray.push(context.tags[i].inner);
+					returnArray.push(unlex(context.tags[i].inner));
 					continue;
 				}
 				
@@ -197,9 +267,10 @@ define(function(require, exports, module) {
 						}
 					}
 				} else if (context.tags[i].command === "+") {
+					var lexedHtml = lexer(context.tags[i].inner);
 					partials[context.tags[i].label] = {
-						html : context.tags[i].inner,
-						context : getTemplateContext(context.tags[i].inner)
+						html : lexedHtml,
+						context : getTemplateContext(lexedHtml)
 					}
 				} else if (context.tags[i].command === "#") {
 					if (typeof myData != "undefined") {
@@ -341,7 +412,7 @@ define(function(require, exports, module) {
 		Helpers.prototype.partial = function(name) {
 			var self = this;
 			
-			return self._partials[name].html;
+			return unlex(self._partials[name].html);
 		}
 		
 		Helpers.prototype.log = function() {
@@ -386,6 +457,8 @@ define(function(require, exports, module) {
 		
 		/*** only reveal public methods ***/
 		exports.fill = fill;
+		exports._lexer = lexer;
+		exports._unlex = unlex;
 		exports.Goatee = Goatee;
 	})();
 	
