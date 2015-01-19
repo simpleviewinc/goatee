@@ -429,6 +429,10 @@ describe(__filename, function() {
 			var html = "{{foo}} {{>more}} {{bar}}";
 			assert.equal(goatee.fill(html, { foo : "foo", bar : "bar" }, { more : "{{$}}{{foo}}{{/}}" }), "foo {{foo}} bar");
 		});
+		
+		it("should leave non-goatee code unchanged", function() {
+			assert.equal(goatee.fill("}}", {}), "}}");
+		});
 	});
 	
 	describe("plugins", function() {

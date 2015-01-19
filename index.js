@@ -341,7 +341,7 @@ define(function(require, exports, module) {
 				returnArray.push(html.substring(position, context.innerEnd));
 			}
 			
-			return returnArray.join("");
+			return unlex(returnArray.join(""));
 		};
 		
 		/*** Cross browser way to test if an object has no keys ***/
