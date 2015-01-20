@@ -120,7 +120,7 @@ define(function(require, exports, module) {
 			var myContext = context;
 			var previousContext = [];
 			while(true) {
-				var matches = currentHTML.match(/Ͼ([\$#!:\/\>\+%]?)(-*?)([~\*@]?)((\w+(Ԓ\([\s\S]*?Ԓ\))?\.|\w+(Ԓ\([\s\S]*?Ԓ\))?)*)Ͽ/);
+				var matches = currentHTML.match(/Ͼ([\$#!:\/\>\+%]?)(-*?)([~\*@]?)(\w+(Ԓ\([\s\S]*?Ԓ\))?(\.\w+(Ԓ\([\s\S]*?Ԓ\))?)*?)?Ͽ/);
 				
 				if (matches == null) {
 					break;
@@ -129,7 +129,7 @@ define(function(require, exports, module) {
 				if (matches[1] != "/") {
 					var labelArr = [];
 					var temp = matches[4];
-					while(true) {
+					while(temp !== undefined) {
 						var termMatch = temp.match(/(\w+)(Ԓ\([\s\S]*?Ԓ\))?(\.|$)/);
 						
 						if (termMatch === null) {

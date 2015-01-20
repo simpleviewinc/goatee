@@ -433,6 +433,25 @@ describe(__filename, function() {
 		it("should leave non-goatee code unchanged", function() {
 			assert.equal(goatee.fill("}}", {}), "}}");
 		});
+		
+		// Odd regex situation, not sure how to classify this, the regex parser was unable to handle this previously for some reason
+		// testing to prevent regression
+		it("should handle odd nesting situation", function() {
+			var template = "{{~setVar('something', true)}}{{foo(data.bar).baz(data.baz)}}";
+			var data = {
+				foo : function(bar) {
+					return {
+						baz : function(baz) {
+							return bar + "_" + baz;
+						}
+					}
+				},
+				bar : "barValue",
+				baz : "bazValue"
+			}
+			
+			assert.equal(goatee.fill(template, data), "barValue_bazValue");
+		});
 	});
 	
 	describe("plugins", function() {
