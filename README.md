@@ -633,6 +633,20 @@ Result. The partial is output unprocessed, so that a client-side goatee can pick
 
 This method allows you to set aside data for use somewhere within the template. This can help you achieve complex `if` `else` statements. It can also be useful for retaining information during loops.
 
+Accessing set data as part a template tag.
+```html
+{{~setVar("foo", "myValue")}}
+{{~var.foo}}
+// myValue
+```
+
+Accessing set data within a JS expression.
+```html
+{{~setVar("foo", "myValue")}}
+{{~exec(function() { return helpers.var.foo })}}
+// myValue
+```
+
 Set aside a variable for use in `if`, `else`.
 ```html
 {{#items}}
