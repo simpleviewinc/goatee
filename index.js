@@ -271,10 +271,9 @@ define(function(require, exports, module) {
 						}
 					}
 				} else if (context.tags[i].command === "+") {
-					var lexedHtml = lexer(context.tags[i].inner);
 					partials[context.tags[i].label] = {
-						html : lexedHtml,
-						context : getTemplateContext(lexedHtml)
+						html : context.tags[i].inner,
+						context : getTemplateContext(context.tags[i].inner)
 					}
 				} else if (context.tags[i].command === "#") {
 					if (typeof myData != "undefined") {

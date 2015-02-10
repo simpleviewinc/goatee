@@ -104,10 +104,10 @@ describe(__filename, function() {
 		});
 		
 		it("should allow declaration of partials", function() {
-			var html = "{{+foo}}{{foo}}{{/foo}}{{>foo}}";
+			var html = "{{+foo}}{{foo}}{{bar()}}{{/foo}}{{>foo}}";
 			
-			var result = goatee.fill(html, { foo : "yes" }, { foo : "fake" });
-			assert.equal(result, "yes");
+			var result = goatee.fill(html, { foo : "yes", bar : function() { return "yes" } }, { foo : "fake" });
+			assert.equal(result, "yesyes");
 			
 			var html = "{{+foo}}{{#data}}{{foo}}{{/data}}{{/foo}}{{>foo}}";
 			var result = goatee.fill(html, { data : [{ foo : "one" }, { foo : "two" }] });
@@ -428,6 +428,12 @@ describe(__filename, function() {
 			assert.equal(goatee.fill("{{$}}" + inner + "{{/}}", { foo : "no" }), inner);
 			var html = "{{foo}} {{>more}} {{bar}}";
 			assert.equal(goatee.fill(html, { foo : "foo", bar : "bar" }, { more : "{{$}}{{foo}}{{/}}" }), "foo {{foo}} bar");
+		});
+		
+		it("should not add partials within perserved html", function() {
+			var html = "{{$}}{{+test}}{{foo}}{{/test}}{{/}}{{>test}}";
+			var result = goatee.fill(html, { foo : "no" });
+			assert.equal(result, "{{+test}}{{foo}}{{/test}}");
 		});
 		
 		it("should leave non-goatee code unchanged", function() {
