@@ -259,7 +259,7 @@ define(function(require, exports, module) {
 						if (context.tags[i].command === "" || typeof myData !== "string") {
 							returnArray.push(myData)
 						} else {
-							returnArray.push(myData.replace(/&/g, '&amp;').replace(/>/g, '&gt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'));
+							returnArray.push(myData.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'));
 						}
 					} else if (typeof myData.template != "undefined" && typeof myData.data != "undefined") {
 						/*** passing a template and data structure ***/
@@ -431,7 +431,7 @@ define(function(require, exports, module) {
 			var self = this;
 			var template = "<script>console.log({{output}});</script>";
 
-			return fill(template, { output : CircularJSON.stringify(arg1, null, null, true).replace(/>/g, "&lt;") });
+			return fill(template, { output : CircularJSON.stringify(arg1, null, null, true).replace(/\</g, "&lt;") });
 		}
 
 		Helpers.prototype.setVar = function(arg1, arg2) {
