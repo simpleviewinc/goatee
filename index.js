@@ -6,6 +6,9 @@ if (typeof exports === 'object' && typeof define !== 'function') {
 }
 
 define(function(require, exports, module) {
+	
+	var CircularJSON = require('/sv_local/node_modules/npm/circular-json/');
+
 	(function() {
 		var openChar = "Ͼ";
 		var closeChar = "Ͽ";
@@ -423,7 +426,14 @@ define(function(require, exports, module) {
 			
 			console.log.apply(console, arguments);
 		}
-		
+
+		Helpers.prototype.console = function(arg1) {
+			var self = this;
+			var template = "<script>console.log({{output}});</script>";
+
+			return fill(template, { output : CircularJSON.stringify(arg1, null, null, true).replace(/>/g, "&lt;") });
+		}
+
 		Helpers.prototype.setVar = function(arg1, arg2) {
 			var self = this;
 			
