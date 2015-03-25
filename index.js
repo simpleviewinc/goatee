@@ -259,7 +259,7 @@ define(function(require, exports, module) {
 						if (context.tags[i].command === "" || typeof myData !== "string") {
 							returnArray.push(myData)
 						} else {
-							returnArray.push(myData.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'));
+							returnArray.push(myData.replace(/&/g, '&amp;').replace(/>/g, '&gt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'));
 						}
 					} else if (typeof myData.template != "undefined" && typeof myData.data != "undefined") {
 						/*** passing a template and data structure ***/
