@@ -2,9 +2,12 @@
 	"name" : "goatee",
 	"description" : "Powerful yet simple templating system with Mustache style syntax and many more features. Works in node and browser with requirejs.",
 	"author" : "Owen Allen <owenallenaz@gmail.com>",
-	"version" : "1.1.4",
+	"version" : "1.1.5",
 	"devDependencies" : {
 		"mocha" : "*"
+	},
+	"dependencies" : {
+		"circular-json" : "*"
 	},
 	"engines" : { "node" : ">=0.10.x" },
 	"scripts" : {

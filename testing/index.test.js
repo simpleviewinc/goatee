@@ -391,6 +391,10 @@ describe(__filename, function() {
 			// output dynamically declared partial
 			assert.equal(goatee.fill("{{+test}}{{foo}}{{/}}{{~partial('test')}}", {}), "{{foo}}");
 		});
+
+		it("should execute console helper", function() {
+			assert.equal(goatee.fill("{{~console(data)}}", { foo : "something", bar : [1] }), '<script>console.log({"foo":"something","bar":[1]});</script>');
+		});
 		
 		it("should execute log helper", function() {
 			var result;
