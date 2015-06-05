@@ -309,6 +309,8 @@ define(function(require, exports, module) {
 							|| 
 							(myData instanceof Array && myData.length > 0)
 							||
+							(myData instanceof Date)
+							||
 							(myData instanceof Object && !isEmpty(myData))
 							||
 							(typeof myData == "boolean" && myData != false)
@@ -320,11 +322,15 @@ define(function(require, exports, module) {
 					}
 				} else if (context.tags[i].command === "!") {
 					if (
-						typeof myData == "undefined" 
-						|| (
+						(myData instanceof Date === false)
+						&& (
+							(typeof myData == "undefined")
+							||
 							(typeof myData == "string" && (myData == "" || myData == "false"))
 							||
 							(myData instanceof Array && myData.length == 0)
+							||
+							(myData === null)
 							||
 							(myData instanceof Object && isEmpty(myData))
 							||

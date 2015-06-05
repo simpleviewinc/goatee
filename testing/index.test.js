@@ -69,8 +69,55 @@ describe(__filename, function() {
 		});
 		
 		it("should do if statements", function() {
-			assert.equal("yes", goatee.fill("{{:foo}}yes{{/foo}}", { foo : "yes" }));
-			assert.equal("yes", goatee.fill("{{:foo}}yes{{/}}", { foo : "yes" }));
+			var tests = [
+				[{ foo : "string" }, true],
+				[{ foo : "" }, false],
+				[{ foo : ["array"] }, true],
+				[{ foo : [] }, false],
+				[{ foo : { key : "value" } }, true],
+				[{ foo : {} }, false],
+				[{ foo : true }, true],
+				[{ foo : false }, false],
+				[{ foo : null }, false],
+				[{ foo : undefined }, false],
+				[{ foo : 0 }, true],
+				[{ foo : 1 }, true],
+				[{ foo : -1 }, true],
+				[{ foo : new Date() }, true]
+			]
+			
+			tests.forEach(function(val, i) {
+				assert.equal(goatee.fill("{{:foo}}yes{{/foo}}", val[0]) === "yes", val[1], JSON.stringify(val[0]) + " should have returned " + val[1]);
+			});
+			
+			// test shortend closing tag
+			assert.equal(goatee.fill("{{:foo}}yes{{/}}", { foo : "yes" }), "yes");
+		});
+		
+		it("should do not if statements", function() {
+			var tests = [
+				[{ foo : "string" }, false],
+				[{ foo : "" }, true],
+				[{ foo : ["array"] }, false],
+				[{ foo : [] }, true],
+				[{ foo : { key : "value" } }, false],
+				[{ foo : {} }, true],
+				[{ foo : true }, false],
+				[{ foo : false }, true],
+				[{ foo : null }, true],
+				[{ foo : undefined }, true],
+				[{ foo : 0 }, false],
+				[{ foo : 1 }, false],
+				[{ foo : -1 }, false],
+				[{ foo : new Date() }, false]
+			]
+			
+			tests.forEach(function(val, i) {
+				assert.equal(goatee.fill("{{!foo}}yes{{/foo}}", val[0]) === "yes", val[1], JSON.stringify(val[0]) + " should have returned " + val[1]);
+			});
+			
+			// test shortend closing tag
+			assert.equal(goatee.fill("{{!foo}}yes{{/}}", { foo : "" }), "yes");
 		});
 		
 		it("should prepend during and after content with sections", function() {
