@@ -175,6 +175,23 @@ describe(__filename, function() {
 			var result = goatee.fill(html, { key : "yes" }, { foo : "NO", foO : "NO", FoO : "{{key}}" });
 			assert.ok(result === "yes");
 		});
+
+		it("should give partials access to data, global and extraData", function() {
+			var html = "{{+foo}}{{*foo(data.foo, global.bar, extra.row)}}{{/foo}}{{#array}}{{>foo}}{{/array}}"
+			
+			var data = {
+				array : [{ foo : "yes" }]
+			}
+			
+			var global = {
+				foo : function(arg1, arg2, arg3) {
+					return arg1 + " " + arg2 + " " + arg3;
+				},
+				bar : "yes2",
+			}
+			
+			assert.equal(goatee.fill(html, data, {}, global), "yes yes2 1");
+		});
 		
 		it("should ignore case for keys", function() {
 			var html = "{{FoO}}";
