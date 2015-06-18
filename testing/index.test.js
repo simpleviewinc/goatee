@@ -177,20 +177,20 @@ describe(__filename, function() {
 		});
 
 		it("should give partials access to data, global and extraData", function() {
-			var html = "{{+foo}}{{*foo(data.foo, global.bar, extra.row)}}{{/foo}}{{#array}}{{>foo}}{{/array}}"
+			var html = "{{+foo}}{{*foo(data.foo, global.bar, extra.row, helpers.equal)}}{{/foo}}{{#array}}{{>foo}}{{/array}}"
 			
 			var data = {
 				array : [{ foo : "yes" }]
 			}
 			
 			var global = {
-				foo : function(arg1, arg2, arg3) {
-					return arg1 + " " + arg2 + " " + arg3;
+				foo : function(arg1, arg2, arg3, arg4) {
+					return arg1 + " " + arg2 + " " + arg3 + " " + arg4(1, 1);
 				},
 				bar : "yes2",
 			}
 			
-			assert.equal(goatee.fill(html, data, {}, global), "yes yes2 1");
+			assert.equal(goatee.fill(html, data, {}, global), "yes yes2 1 true");
 		});
 		
 		it("should ignore case for keys", function() {
