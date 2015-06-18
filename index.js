@@ -185,7 +185,7 @@ define(function(require, exports, module) {
 				if (context.tags[i].command === ">") {
 					var keyMatch = getKeyMatch(partials, context.tags[i].label);
 					if (keyMatch !== undefined) {
-						returnArray.push(processTags(partials[keyMatch].html, partials[keyMatch].context, data, partials, {}, globalData, helpers));
+						returnArray.push(processTags(partials[keyMatch].html, partials[keyMatch].context, data, partials, extraData, globalData, helpers));
 					}
 					
 					continue;
