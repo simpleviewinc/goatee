@@ -126,9 +126,15 @@ define(function(require, exports, module) {
 					break;
 				}
 				
-				if (matches[1] != "/") {
+				var wholeTag = matches[0];
+				var operator = matches[1];
+				var backTrack = matches[2];
+				var lookup = matches[3];
+				var tagContent = matches[4];
+				
+				if (operator != "/") {
 					var labelArr = [];
-					var temp = matches[4];
+					var temp = tagContent;
 					while(temp !== undefined) {
 						var termMatch = temp.match(/(\w+)(Ԓ\([\s\S]*?Ԓ\))?(\.|$)/);
 						
@@ -150,14 +156,14 @@ define(function(require, exports, module) {
 						labelArr.push(term);
 					}
 					
-					myContext.tags.push({ label : matches[4], labelArr : labelArr, backTrack : matches[2].length, lookup : matches[3], command : matches[1], start : matches.index, end : matches[0].length + matches.index, innerStart : matches[0].length + matches.index, innerEnd : "", tags : [] });
+					myContext.tags.push({ label : tagContent, labelArr : labelArr, backTrack : backTrack.length, lookup : lookup, command : operator, start : matches.index, end : wholeTag.length + matches.index, innerStart : wholeTag.length + matches.index, innerEnd : "", tags : [] });
 					
-					if (["#", ":", "!", "+", "$"].indexOf(matches[1]) > -1) {
+					if (["#", ":", "!", "+", "$"].indexOf(operator) > -1) {
 						previousContext.push(myContext);
 						myContext = myContext.tags[myContext.tags.length - 1];
 					}
 				} else {
-					myContext.end = matches[0].length + matches.index;
+					myContext.end = wholeTag.length + matches.index;
 					myContext.innerEnd = matches.index;
 					myContext.inner = html.substring(myContext.innerStart, myContext.innerEnd);
 					myContext = previousContext[previousContext.length - 1];
@@ -165,10 +171,10 @@ define(function(require, exports, module) {
 				}
 				
 				var temp = [];
-				for(var i = 0; i < matches[0].length; i++) {
+				for(var i = 0; i < wholeTag.length; i++) {
 					temp.push("-");
 				}
-				currentHTML = currentHTML.replace(matches[0], temp.join(""));
+				currentHTML = currentHTML.replace(wholeTag, temp.join(""));
 			}
 			
 			return context;
