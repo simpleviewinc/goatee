@@ -111,26 +111,43 @@ define(function(require, exports, module) {
 			
 			var context = {
 				tags : [],
-				start : 0,
-				inner : html,
-				innerStart : 0,
-				innerEnd : html.length,
-				end : html.length
+				start : 0, // the character index that the tag starts at
+				inner : html, // the content between the closing and opening tag
+				innerStart : 0, // the character index where the content of the inner part of the tag starts
+				innerEnd : html.length, // the character index where the content of the inner part of the tag ends
+				end : html.length // the character index of the end of the closing tag
 			};
 			var myContext = context;
 			var previousContext = [];
+			
 			while(true) {
-				var matches = currentHTML.match(/Ͼ([\$#!:\/\>\+%]?)(-*?)([~\*@]?)(\w+(Ԓ\([\s\S]*?Ԓ\))?(\.\w+(Ԓ\([\s\S]*?Ԓ\))?)*?)?Ͽ/);
+				var matches = currentHTML.match(/Ͼ([\?]?)([\$#!:\/\>\+%]?)(-*?)([~\*@]?)(\w+(Ԓ\([\s\S]*?Ԓ\))?(\.\w+(Ԓ\([\s\S]*?Ԓ\))?)*?)?Ͽ/);
 				
 				if (matches == null) {
 					break;
 				}
 				
 				var wholeTag = matches[0];
-				var operator = matches[1];
-				var backTrack = matches[2];
-				var lookup = matches[3];
-				var tagContent = matches[4];
+				var elseTag = matches[1] === "?"; // if this tag is an else tag
+				var operator = matches[2];
+				var backTrack = matches[3];
+				var lookup = matches[4];
+				var tagContent = matches[5];
+				var ifStarterTag = [":", "!"].indexOf(operator) > -1; // if this tag is the opening of an if/else block
+				var ifElseTag = elseTag || ifStarterTag;
+				
+				var exitContext = function() {
+					myContext.end = wholeTag.length + matches.index;
+					myContext.innerEnd = matches.index;
+					myContext.inner = html.substring(myContext.innerStart, myContext.innerEnd);
+					myContext = previousContext[previousContext.length - 1];
+					previousContext.splice(previousContext.length - 1, 1);
+				}
+				
+				if (elseTag === true) {
+					// if we hit an else tag we need to treat it as if it was an end tag to close the previous context
+					exitContext();
+				}
 				
 				if (operator != "/") {
 					var labelArr = [];
@@ -156,18 +173,29 @@ define(function(require, exports, module) {
 						labelArr.push(term);
 					}
 					
-					myContext.tags.push({ label : tagContent, labelArr : labelArr, backTrack : backTrack.length, lookup : lookup, command : operator, start : matches.index, end : wholeTag.length + matches.index, innerStart : wholeTag.length + matches.index, innerEnd : "", tags : [] });
+					myContext.tags.push({
+						label : tagContent,
+						labelArr : labelArr,
+						elseTag : elseTag,
+						ifElseTag : ifElseTag,
+						ifStarterTag : ifStarterTag,
+						backTrack : backTrack.length,
+						lookup : lookup,
+						command : operator,
+						start : matches.index,
+						end : wholeTag.length + matches.index,
+						innerStart : wholeTag.length + matches.index,
+						innerEnd : undefined,
+						tags : []
+					});
 					
-					if (["#", ":", "!", "+", "$"].indexOf(operator) > -1) {
+					// if we have an operator which needs a new context, step inside
+					if (["#", ":", "!", "+", "$"].indexOf(operator) > -1 || elseTag === true) {
 						previousContext.push(myContext);
 						myContext = myContext.tags[myContext.tags.length - 1];
 					}
 				} else {
-					myContext.end = wholeTag.length + matches.index;
-					myContext.innerEnd = matches.index;
-					myContext.inner = html.substring(myContext.innerStart, myContext.innerEnd);
-					myContext = previousContext[previousContext.length - 1];
-					previousContext.splice(previousContext.length - 1, 1);
+					exitContext();
 				}
 				
 				var temp = [];
@@ -183,9 +211,18 @@ define(function(require, exports, module) {
 		var processTags = function(html, context, data, partials, extraData, globalData, helpers) {
 			var returnArray = [];
 			
+			// keeps track of whether we're in an if/else block and a block previous to this passed it's condition
+			var ifElseActivated = false;
+			
 			var position = context.innerStart;
 			for(var i = 0; i < context.tags.length; i++) {
-				returnArray.push(html.substring(position, context.tags[i].start));
+				if (context.tags[i].elseTag === false) {
+					ifElseActivated = false;
+				}
+				
+				if (position < context.tags[i].start) {
+					returnArray.push(html.substring(position, context.tags[i].start));
+				}
 				position = context.tags[i].end;
 				
 				if (context.tags[i].command === ">") {
@@ -255,7 +292,10 @@ define(function(require, exports, module) {
 				}
 				
 				if (context.tags[i].command === "" || context.tags[i].command === "%") {
-					if (typeof myData == "undefined" || myData == null) {
+					if (context.tags[i].elseTag === true && ifElseActivated === false) {
+						ifElseActivated = true;
+						returnArray.push(processTags(html, context.tags[i], dataContext, partials, extraData, globalData, helpers));
+					} else if (typeof myData == "undefined" || myData == null) {
 						// do nothing
 					} else if (typeof myData === "string" || typeof myData === "number" || typeof myData === "boolean") {
 						/*** standard tags ***/
@@ -310,7 +350,8 @@ define(function(require, exports, module) {
 					}
 				} else if (context.tags[i].command === ":") {
 					if (
-						typeof myData != "undefined" && (
+						typeof myData != "undefined" &&
+						ifElseActivated === false && (
 							(typeof myData == "string" && myData != "" && myData != "false")
 							|| 
 							(myData instanceof Array && myData.length > 0)
@@ -324,12 +365,13 @@ define(function(require, exports, module) {
 							(typeof myData == "number")
 						)
 					) {
+						ifElseActivated = true;
 						returnArray.push(processTags(html, context.tags[i], dataContext, partials, extraData, globalData, helpers));
 					}
 				} else if (context.tags[i].command === "!") {
 					if (
-						(myData instanceof Date === false)
-						&& (
+						myData instanceof Date === false &&
+						ifElseActivated === false && (
 							(typeof myData == "undefined")
 							||
 							(typeof myData == "string" && (myData == "" || myData == "false"))
@@ -343,6 +385,7 @@ define(function(require, exports, module) {
 							(typeof myData == "boolean" && myData == false)
 						)
 					) {
+						ifElseActivated = true;
 						returnArray.push(processTags(html, context.tags[i], dataContext, partials, extraData, globalData, helpers));
 					}
 				}

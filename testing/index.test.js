@@ -50,6 +50,50 @@ describe(__filename, function() {
 	});
 	
 	describe("filler", function() {
+		it("should do if else", function() {
+			var tests = [
+				// chekc standard if statement
+				["{{:foo}}{{data}}{{?}}{{data2}}{{/}}", { foo : true, data : "dataValue", data2 : "dataValue2" }, "dataValue"],
+				["{{:foo}}{{data}}{{?}}{{data2}}{{/}}", { foo : false, data : "dataValue", data2 : "dataValue2" }, "dataValue2"],
+				// check two level if statement
+				["{{:foo}}{{data}}{{?:bar}}{{data2}}{{?}}{{data3}}{{/}}", { foo : false, bar : true, data : "dataValue", data2 : "dataValue2", data3 : "dataValue3" }, "dataValue2"],
+				["{{:foo}}{{data}}{{?:bar}}{{data2}}{{?}}{{data3}}{{/}}", { foo : false, bar : false, data : "dataValue", data2 : "dataValue2", data3 : "dataValue3" }, "dataValue3"],
+				// check three level if statement
+				["{{:foo}}{{data}}{{?:bar}}{{data2}}{{?:baz}}{{data3}}{{?}}{{data4}}{{/}}", { foo : false, bar : false, baz : true, data : "dataValue", data2 : "dataValue2", data3 : "dataValue3", data4 : "dataValue4" }, "dataValue3"],
+				["{{:foo}}{{data}}{{?:bar}}{{data2}}{{?:baz}}{{data3}}{{?}}{{data4}}{{/}}", { foo : false, bar : false, baz : false, data : "dataValue", data2 : "dataValue2", data3 : "dataValue3", data4 : "dataValue4" }, "dataValue4"],
+				// check that inner nesting is working
+				["{{:foo}}{{:bar}}{{data}}{{?}}{{data2}}{{/}}{{?}}{{:baz}}{{data3}}{{?}}{{data4}}{{/}}{{/}}", { foo : true, bar : true, baz : true, data : "dataValue", data2 : "dataValue2", data3 : "dataValue3", data4 : "dataValue4" }, "dataValue"],
+				["{{:foo}}{{:bar}}{{data}}{{?}}{{data2}}{{/}}{{?}}{{:baz}}{{data3}}{{?}}{{data4}}{{/}}{{/}}", { foo : true, bar : true, baz : false, data : "dataValue", data2 : "dataValue2", data3 : "dataValue3", data4 : "dataValue4" }, "dataValue"],
+				["{{:foo}}{{:bar}}{{data}}{{?}}{{data2}}{{/}}{{?}}{{:baz}}{{data3}}{{?}}{{data4}}{{/}}{{/}}", { foo : true, bar : false, baz : true, data : "dataValue", data2 : "dataValue2", data3 : "dataValue3", data4 : "dataValue4" }, "dataValue2"],
+				["{{:foo}}{{:bar}}{{data}}{{?}}{{data2}}{{/}}{{?}}{{:baz}}{{data3}}{{?}}{{data4}}{{/}}{{/}}", { foo : true, bar : false, baz : false, data : "dataValue", data2 : "dataValue2", data3 : "dataValue3", data4 : "dataValue4" }, "dataValue2"],
+				["{{:foo}}{{:bar}}{{data}}{{?}}{{data2}}{{/}}{{?}}{{:baz}}{{data3}}{{?}}{{data4}}{{/}}{{/}}", { foo : false, bar : true, baz : true, data : "dataValue", data2 : "dataValue2", data3 : "dataValue3", data4 : "dataValue4" }, "dataValue3"],
+				["{{:foo}}{{:bar}}{{data}}{{?}}{{data2}}{{/}}{{?}}{{:baz}}{{data3}}{{?}}{{data4}}{{/}}{{/}}", { foo : false, bar : true, baz : false, data : "dataValue", data2 : "dataValue2", data3 : "dataValue3", data4 : "dataValue4" }, "dataValue4"],
+				["{{:foo}}{{:bar}}{{data}}{{?}}{{data2}}{{/}}{{?}}{{:baz}}{{data3}}{{?}}{{data4}}{{/}}{{/}}", { foo : false, bar : false, baz : true, data : "dataValue", data2 : "dataValue2", data3 : "dataValue3", data4 : "dataValue4" }, "dataValue3"],
+				["{{:foo}}{{:bar}}{{data}}{{?}}{{data2}}{{/}}{{?}}{{:baz}}{{data3}}{{?}}{{data4}}{{/}}{{/}}", { foo : false, bar : false, baz : false, data : "dataValue", data2 : "dataValue2", data3 : "dataValue3", data4 : "dataValue4" }, "dataValue4"],
+				// check that other constructs work inside if statements
+				["{{+inner}}{{#data}}{{@data}}{{/data}}{{/}}{{:foo}}foo{{#data}}{{@data}}{{/}}{{>inner}}{{?}}bar{{#data}}{{@data}}{{/}}{{>inner}}{{/}}", { foo : true, data : ["one", "two"] }, "fooonetwoonetwo"],
+				["{{+inner}}{{#data}}{{@data}}{{/data}}{{/}}{{:foo}}foo{{#data}}{{@data}}{{/}}{{>inner}}{{?}}bar{{#data}}{{@data}}{{/}}{{>inner}}{{/}}", { foo : false, data : ["one", "two"] }, "baronetwoonetwo"],
+				// check if not if mixes
+				["{{:foo}}{{data}}{{?!bar}}{{data2}}{{?:baz}}{{data3}}{{?}}{{data4}}{{/}}", { foo : true, bar : true, baz : true, data : "dataValue", data2 : "dataValue2", data3 : "dataValue3", data4 : "dataValue4" }, "dataValue"],
+				["{{:foo}}{{data}}{{?!bar}}{{data2}}{{?:baz}}{{data3}}{{?}}{{data4}}{{/}}", { foo : true, bar : true, baz : false, data : "dataValue", data2 : "dataValue2", data3 : "dataValue3", data4 : "dataValue4" }, "dataValue"],
+				["{{:foo}}{{data}}{{?!bar}}{{data2}}{{?:baz}}{{data3}}{{?}}{{data4}}{{/}}", { foo : true, bar : false, baz : true, data : "dataValue", data2 : "dataValue2", data3 : "dataValue3", data4 : "dataValue4" }, "dataValue"],
+				["{{:foo}}{{data}}{{?!bar}}{{data2}}{{?:baz}}{{data3}}{{?}}{{data4}}{{/}}", { foo : true, bar : false, baz : false, data : "dataValue", data2 : "dataValue2", data3 : "dataValue3", data4 : "dataValue4" }, "dataValue"],
+				["{{:foo}}{{data}}{{?!bar}}{{data2}}{{?:baz}}{{data3}}{{?}}{{data4}}{{/}}", { foo : false, bar : true, baz : true, data : "dataValue", data2 : "dataValue2", data3 : "dataValue3", data4 : "dataValue4" }, "dataValue3"],
+				["{{:foo}}{{data}}{{?!bar}}{{data2}}{{?:baz}}{{data3}}{{?}}{{data4}}{{/}}", { foo : false, bar : true, baz : false, data : "dataValue", data2 : "dataValue2", data3 : "dataValue3", data4 : "dataValue4" }, "dataValue4"],
+				["{{:foo}}{{data}}{{?!bar}}{{data2}}{{?:baz}}{{data3}}{{?}}{{data4}}{{/}}", { foo : false, bar : false, baz : true, data : "dataValue", data2 : "dataValue2", data3 : "dataValue3", data4 : "dataValue4" }, "dataValue2"],
+				["{{:foo}}{{data}}{{?!bar}}{{data2}}{{?:baz}}{{data3}}{{?}}{{data4}}{{/}}", { foo : false, bar : false, baz : false, data : "dataValue", data2 : "dataValue2", data3 : "dataValue3", data4 : "dataValue4" }, "dataValue2"],
+				// check spacing
+				["a{{:foo}}b{{data}}c{{?:bar}}d{{data}}e{{?!baz}}f{{data}}g{{?}}h{{data}}i{{/}}j", { foo : true, bar : true, baz : true, data : "dataValue" }, "abdataValuecj"],
+				["a{{:foo}}b{{data}}c{{?:bar}}d{{data}}e{{?!baz}}f{{data}}g{{?}}h{{data}}i{{/}}j", { foo : false, bar : true, baz : true, data : "dataValue" }, "addataValueej"],
+				["a{{:foo}}b{{data}}c{{?:bar}}d{{data}}e{{?!baz}}f{{data}}g{{?}}h{{data}}i{{/}}j", { foo : false, bar : false, baz : true, data : "dataValue" }, "ahdataValueij"],
+				["a{{:foo}}b{{data}}c{{?:bar}}d{{data}}e{{?!baz}}f{{data}}g{{?}}h{{data}}i{{/}}j", { foo : false, bar : false, baz : false, data : "dataValue" }, "afdataValuegj"]
+			]
+			
+			tests.forEach(function(val, i) {
+				assert.strictEqual(goatee.fill(val[0], val[1]), val[2]);
+			});
+		});
+		
 		it("should fail silently diving into subproperty of string", function() {
 			var html = "{{key.bar}}";
 			var result = goatee.fill(html, { key : "" });
