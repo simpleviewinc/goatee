@@ -115,17 +115,18 @@ Now, downstream you can simply `require("myGoatee.js")` and it will have the plu
 ### Tag Quick Reference
 
 0. `{{key}}` - Output variable
-1.  `{{:key}} {{/key}}` - Positive conditional.
-2.  `{{!key}} {{/key}}` - Negative conditional.
-3. `{{>key}}`- Partial.
-4. `{{+key}} {{/key}}` - Custom partial.
-5. `{{*key}}` - Global data.
-6.  `{{#key}} {{key}}` - Section, object or array.
-7.  `{{%key}}` - HTML encode (`><&"`)
-8.  `{{@key}}` - Extra data during array iteration.
-9.  `{{~key}}` - Helpers.
-10.  `{{$}} {{/key}}` - Preserve.
-11.  `{{---key}}` - Reach up X number of scopes based on count of `-`.
+0.  `{{:key}} {{/key}}` - Positive conditional.
+0.  `{{!key}} {{/key}}` - Negative conditional.
+0.  `{{:key}} {{?:key2}} {{?!key2}} {{?}} {{/}}` - Complex if/else if/else conditionals.
+0. `{{>key}}`- Partial.
+0. `{{+key}} {{/key}}` - Custom partial.
+0. `{{*key}}` - Global data.
+0.  `{{#key}} {{key}}` - Section, object or array.
+0.  `{{%key}}` - HTML encode (`><&"`)
+0.  `{{@key}}` - Extra data during array iteration.
+0.  `{{~key}}` - Helpers.
+0.  `{{$}} {{/key}}` - Preserve.
+0.  `{{---key}}` - Reach up X number of scopes based on count of `-`.
 
 <a name="tags_understanding_tags">
 ### Understanding tags
@@ -234,6 +235,41 @@ The following cases will run the contents of the tag.
 0. Strings which are "".
 0. `undefined`
 0. `false`
+
+### If/Else If/Else `{{:var}} exists {{?}} not exists {{/var}}`
+
+`{{:foo}}` and `{{!foo}}` conditionals can be used in conjunction with `{{?}}` and `{{?:bar}}` type statements to create `if/else` and `if/else if/else` type statements by nesting very similar to how they work in most languages
+
+Simple example of if/else
+```html
+{{:foo}}
+  if foo is truthy
+{{?}}
+  else
+{{/}}
+```
+
+Example of if/else if with no else
+```html
+{{:foo}}
+  if foo is truthy
+{{?:bar}}
+  else if bar is truthy
+{{/}}
+```
+
+Mixing everything
+```html
+{{:foo}}
+  if foo is truthy
+{{?!bar}}
+  else if bar is falsey
+{{?:baz}}
+  else if baz is truthy
+{{?}}
+  else
+{{/}}
+```
 
 ### Sections `{{#var}} content {{/var}}`
 
