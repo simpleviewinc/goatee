@@ -174,10 +174,11 @@ describe(__filename, function() {
 				foo : [1,2,3],
 				bar : {
 					inner : "foo"
-				}
+				},
+				baz : 5
 			}
 			
-			assert.equal(goatee.fill("{{foo.length}} {{bar.inner}}", data), "3 foo");
+			assert.equal(goatee.fill("{{foo.length}} {{bar.inner}} {{baz.toString()}}", data), "3 foo 5");
 		});
 		
 		it("should not fail on recursive undefined", function() {

@@ -256,10 +256,7 @@ define(function(require, exports, module) {
 				
 				var labelArr = context.tags[i].labelArr;
 				for(var j = 0; j < labelArr.length; j++) {
-					if (!(myData instanceof Object)) {
-						// if myData is not an Object (includes {} and []) then we can't dive deeper
-						// set to undefined because it means we were not able to process all labels
-						myData = undefined;
+					if (myData === undefined || myData === null){
 						break;
 					}
 					
