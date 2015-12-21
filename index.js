@@ -124,8 +124,10 @@ define(function(require, exports, module) {
 			var myContext = context;
 			var previousContext = [];
 			
+			var tagMatcher = /Ͼ([\?]?)([\$#!:\/\>\+%]?)(-*?)([~\*@]?)(\w+(Ԓ\([\s\S]*?Ԓ\))?(\.\w+(Ԓ\([\s\S]*?Ԓ\))?)*?)?Ͽ/g
+			
 			while(true) {
-				var matches = currentHTML.match(/Ͼ([\?]?)([\$#!:\/\>\+%]?)(-*?)([~\*@]?)(\w+(Ԓ\([\s\S]*?Ԓ\))?(\.\w+(Ԓ\([\s\S]*?Ԓ\))?)*?)?Ͽ/);
+				var matches = tagMatcher.exec(html);
 				
 				if (matches == null) {
 					break;
@@ -155,9 +157,9 @@ define(function(require, exports, module) {
 				
 				if (operator != "/") {
 					var labelArr = [];
-					var temp = tagContent;
-					while(temp !== undefined) {
-						var termMatch = temp.match(/(\w+)(Ԓ\([\s\S]*?Ԓ\))?(\.|$)/);
+					var termMatcher = /(\w+)(Ԓ\([\s\S]*?Ԓ\))?(\.|$)/g
+					while(tagContent !== undefined) {
+						var termMatch = termMatcher.exec(tagContent);
 						
 						if (termMatch === null) {
 							break;
@@ -171,8 +173,6 @@ define(function(require, exports, module) {
 							// extract the contents of a function call eg: foo(bar, baz)
 							term.argString = termMatch[2].replace(/^Ԓ\(/, "").replace(/Ԓ\)$/, "");
 						}
-						
-						temp = temp.replace(termMatch[0], "");
 						
 						labelArr.push(term);
 					}
@@ -201,12 +201,6 @@ define(function(require, exports, module) {
 				} else {
 					exitContext();
 				}
-				
-				var temp = [];
-				for(var i = 0; i < wholeTag.length; i++) {
-					temp.push("-");
-				}
-				currentHTML = currentHTML.replace(wholeTag, arrayToString(temp));
 			}
 			
 			return context;
@@ -522,6 +516,7 @@ define(function(require, exports, module) {
 		/*** only reveal public methods ***/
 		exports.fill = fill;
 		exports._lexer = lexer;
+		exports._getTemplateContext = getTemplateContext;
 		exports._unlex = unlex;
 		exports.Goatee = Goatee;
 	})();
