@@ -72,7 +72,9 @@ define(function(require, exports, module) {
 				}
 			}
 			
-			return temp.join("");
+			var result = arrayToString(temp);
+			
+			return result;
 		}
 		
 		var unlex = function(html) {
@@ -103,7 +105,9 @@ define(function(require, exports, module) {
 			
 			var helpers = new Helpers({ partials : myPartials, plugins : plugins || {} });
 			
-			return processTags(lexedHtml, context, [ data ], myPartials, {}, globalData, helpers);
+			var result = processTags(lexedHtml, context, [ data ], myPartials, {}, globalData, helpers);
+			
+			return result;
 		};
 		
 		var getTemplateContext = function(html) {
@@ -202,7 +206,7 @@ define(function(require, exports, module) {
 				for(var i = 0; i < wholeTag.length; i++) {
 					temp.push("-");
 				}
-				currentHTML = currentHTML.replace(wholeTag, temp.join(""));
+				currentHTML = currentHTML.replace(wholeTag, arrayToString(temp));
 			}
 			
 			return context;
@@ -392,18 +396,14 @@ define(function(require, exports, module) {
 				returnArray.push(html.substring(position, context.innerEnd));
 			}
 			
-			return unlex(returnArray.join(""));
+			var result = unlex(arrayToString(returnArray));
+			
+			return result;
 		};
 		
 		/*** Cross browser way to test if an object has no keys ***/
 		var isEmpty = function(obj) {
-			for(var prop in obj) {
-				if(obj.hasOwnProperty(prop)) {
-					return false;
-				}
-			}
-			
-			return true;
+			return Object.keys(obj).length === 0;
 		};
 		
 		var getKeyMatch = function(obj, key) {
@@ -423,6 +423,15 @@ define(function(require, exports, module) {
 			
 			// key not found
 			return undefined;
+		}
+		
+		var arrayToString = function(arr) {
+			var str = "";
+			for(var i = 0; i < arr.length; i++) {
+				str += arr[i];
+			}
+			
+			return str;
 		}
 		
 		// helpers provide all fill() calls with useful function calls to assist in eliminating pre-processing
