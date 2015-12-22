@@ -11,6 +11,9 @@ define(function(require, exports, module) {
 		var closeChar = "Ͽ";
 		var parenChar = "Ԓ";
 		
+		var tagMatcher = /Ͼ([\?]?)([\$#!:\/\>\+%]?)(-*?)([~\*@]?)(\w+(Ԓ\([\s\S]*?Ԓ\))?(\.\w+(Ԓ\([\s\S]*?Ԓ\))?)*?)?Ͽ/g
+		var termMatcher = /(\w+)(Ԓ\([\s\S]*?Ԓ\))?(\.|$)/g
+		
 		// lexes the template to detect opening and closing tags and parens
 		var lexer = function(html) {
 			// convert open close to single chars to make algorithm easier
@@ -124,8 +127,6 @@ define(function(require, exports, module) {
 			var myContext = context;
 			var previousContext = [];
 			
-			var tagMatcher = /Ͼ([\?]?)([\$#!:\/\>\+%]?)(-*?)([~\*@]?)(\w+(Ԓ\([\s\S]*?Ԓ\))?(\.\w+(Ԓ\([\s\S]*?Ԓ\))?)*?)?Ͽ/g
-			
 			while(true) {
 				var matches = tagMatcher.exec(html);
 				
@@ -157,7 +158,7 @@ define(function(require, exports, module) {
 				
 				if (operator != "/") {
 					var labelArr = [];
-					var termMatcher = /(\w+)(Ԓ\([\s\S]*?Ԓ\))?(\.|$)/g
+					
 					while(tagContent !== undefined) {
 						var termMatch = termMatcher.exec(tagContent);
 						
