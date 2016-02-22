@@ -41,7 +41,7 @@ describe(__filename, function() {
 		});
 		
 		it("should handle parens", function() {
-			assert.equal(goatee._lexer("{{foo.bar().baz(function() {}).qux(function() { console.log(')'); stuff = \")\"; }).moo}}"), "Ͼfoo.barԒ(Ԓ).bazԒ(function() {}Ԓ).quxԒ(function() { console.log(')'); stuff = \")\"; }Ԓ).mooϿ");
+			assert.equal(goatee._lexer("{{foo.bar().baz(function() {}).qux(function() { console.log(')'); stuff = \")\"; data = \"{{tag}}\"; }).moo}}"), "Ͼfoo.barԒ(Ԓ).bazԒ(function() {}Ԓ).quxԒ(function() { console.log(')'); stuff = \")\"; data = \"{{tag}}\"; }Ԓ).mooϿ");
 		});
 		
 		it("should unlex", function() {

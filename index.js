@@ -17,9 +17,11 @@ define(function(require, exports, module) {
 		// lexes the template to detect opening and closing tags and parens
 		var lexer = function(html) {
 			// convert open close to single chars to make algorithm easier
-			var temp = html.replace(/\{\{/g, openChar).replace(/\}\}/g, closeChar).split("");
+			var temp = html.replace(/(\{\{|\}\})/g, function(val, i) {
+				return val === "{{" ? openChar : closeChar;
+			});
 			
-			var marks = [];
+			var result = "";
 			
 			var inTag = false;
 			var inParen = false;
@@ -35,9 +37,9 @@ define(function(require, exports, module) {
 					// inside tag
 					if (inParen) {
 						if (c === openChar) {
-							temp.splice(i, 1, "{{");
+							c = "{{"
 						} else if (c === closeChar) {
-							temp.splice(i, 1, "}}");
+							c = "}}";
 						} else if (inSingle && c === "'") {
 							inSingle = false;
 						} else if (inSingle) {
@@ -52,8 +54,7 @@ define(function(require, exports, module) {
 							openCount--;
 							if (openCount === 0) {
 								inParen = false;
-								temp.splice(i, 0, parenChar);
-								i++;
+								c = parenChar + ")";
 							}
 						} else if (c === '"') {
 							inDouble = true;
@@ -64,8 +65,7 @@ define(function(require, exports, module) {
 						// in tag, not in parent, open char
 						inParen = true;
 						openCount++;
-						temp.splice(i, 0, parenChar);
-						i++;
+						c = parenChar + "(";
 					} else if (c === closeChar) {
 						inTag = false;
 					}
@@ -73,15 +73,17 @@ define(function(require, exports, module) {
 					// not in tag, open char
 					inTag = true;
 				}
+				
+				result += c;
 			}
-			
-			var result = arrayToString(temp);
 			
 			return result;
 		}
 		
 		var unlex = function(html) {
-			return html.replace(/Ͼ/g, "{{").replace(/Ͽ/g, "}}").replace(/Ԓ/g, "");
+			return html.replace(/[ϾϿԒ]/g, function(val, i) {
+				return val === openChar ? "{{" : val === closeChar ? "}}" : ""
+			});
 		}
 		
 		var fill = function(html, data, partials, globalData, plugins) {
