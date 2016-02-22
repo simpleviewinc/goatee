@@ -72,6 +72,9 @@ define(function(require, exports, module) {
 				} else if (c === openChar) {
 					// not in tag, open char
 					inTag = true;
+				} else if (c === closeChar) {
+					// not in tag, close char, swap back
+					c = "}}";
 				}
 				
 				result += c;
@@ -104,6 +107,7 @@ define(function(require, exports, module) {
 				var temp = lexer(partials[i]);
 				myPartials[i] = {
 					context : getTemplateContext(temp),
+					raw : partials[i],
 					html : temp
 				};
 			}
@@ -317,6 +321,7 @@ define(function(require, exports, module) {
 				} else if (context.tags[i].command === "+") {
 					partials[context.tags[i].label] = {
 						html : context.tags[i].inner,
+						raw : unlex(context.tags[i].inner),
 						context : getTemplateContext(context.tags[i].inner)
 					}
 				} else if (context.tags[i].command === "#") {
@@ -393,7 +398,7 @@ define(function(require, exports, module) {
 				returnArray.push(html.substring(position, context.innerEnd));
 			}
 			
-			var result = unlex(arrayToString(returnArray));
+			var result = arrayToString(returnArray);
 			
 			return result;
 		};
@@ -473,7 +478,7 @@ define(function(require, exports, module) {
 		Helpers.prototype.partial = function(name) {
 			var self = this;
 			
-			return unlex(self._partials[name].html);
+			return self._partials[name].raw;
 		}
 		
 		Helpers.prototype.log = function() {
