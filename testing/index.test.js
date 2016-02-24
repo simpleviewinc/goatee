@@ -567,6 +567,22 @@ describe(__filename, function() {
 			
 			assert.equal(goatee.fill(template, data), "barValue_bazValue");
 		});
+		
+		it("should optionally cache template processing", function() {
+			var template = "{{data}}";
+			
+			var temp = new goatee.Goatee();
+			assert.strictEqual(temp.fill(template, { data : "yes" }), "yes");
+			assert.deepEqual(temp._templateCache, {});
+			
+			var temp = new goatee.Goatee({ cache : true });
+			assert.strictEqual(temp.fill(template, { data : "yes" }), "yes");
+			assert.strictEqual(temp._templateCache[template].raw, "{{data}}");
+			assert.strictEqual(temp._templateCache[template].html, "ϾdataϿ");
+			assert.notEqual(temp._templateCache[template].context, undefined);
+			
+			assert.strictEqual(temp.fill(template, { data : "yes" }), "yes");
+		});
 	});
 	
 	describe("plugins", function() {

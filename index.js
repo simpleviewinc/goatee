@@ -493,11 +493,15 @@ define(function(require, exports, module) {
 			self.var[arg1] = arg2;
 		}
 		
-		var Goatee = function() {
+		var Goatee = function(args) {
 			var self = this;
 			
+			args = args || {};
+			
+			self._cache = args.cache === undefined ? false : args.cache;
 			self._plugins = {};
 			self._locked = false;
+			self._templateCache = {};
 		}
 		
 		Goatee.prototype.addPlugin = function(name, plugin) {
@@ -510,11 +514,64 @@ define(function(require, exports, module) {
 			self._plugins[name] = plugin;
 		}
 		
-		Goatee.prototype.fill = function(html, data, partials, globalData, plugins) {
+		Goatee.prototype.fill = function(html, data, partials, globalData) {
 			var self = this;
 			
-			return fill(html, data || {}, partials || {}, globalData || data, self._plugins);
+			if (typeof partials == "undefined") {
+				partials = {};
+			}
+			if (typeof globalData == "undefined") {
+				globalData = data;
+			}
+			if (data === undefined) {
+				data = {};
+			}
+			
+			var template = self._processTemplate(html);
+			var myPartials = {};
+			for(var i in partials) {
+				myPartials[i] = self._processTemplate(partials[i]);
+			}
+			
+			var helpers = new Helpers({ partials : myPartials, plugins : self._plugins || {} });
+			
+			var result = processTags(template.html, template.context, [ data ], myPartials, {}, globalData, helpers, self._plugins);
+			
+			return result;
 		};
+		
+		Goatee.prototype._processTemplate = function(html) {
+			var self = this;
+			
+			var cached = self._templateCache[html];
+			
+			if (self._cache === true && cached !== undefined) {
+				cached.hitCount++;
+				return cached;
+			}
+			
+			var lexedHtml = lexer(html);
+			var context = getTemplateContext(lexedHtml);
+			
+			var temp = {
+				hitCount : 0,
+				raw : html,
+				html : lexedHtml,
+				context : context
+			}
+			
+			if (self._cache === true) {
+				self._templateCache[html] = temp;
+			}
+			
+			return temp;
+		}
+		
+		Goatee.prototype.clearTemplateCache = function() {
+			var self = this;
+			
+			self._templateCache = {};
+		}
 		
 		Goatee.prototype.lock = function() {
 			var self = this;
@@ -522,7 +579,8 @@ define(function(require, exports, module) {
 		}
 		
 		/*** only reveal public methods ***/
-		exports.fill = fill;
+		var staticGoatee = new Goatee();
+		exports.fill = staticGoatee.fill.bind(staticGoatee);
 		exports._lexer = lexer;
 		exports._getTemplateContext = getTemplateContext;
 		exports._unlex = unlex;
