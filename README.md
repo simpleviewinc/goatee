@@ -115,18 +115,18 @@ Now, downstream you can simply `require("myGoatee.js")` and it will have the plu
 ### Tag Quick Reference
 
 0. `{{key}}` - Output variable
-0.  `{{:key}} {{/key}}` - Positive conditional.
-0.  `{{!key}} {{/key}}` - Negative conditional.
-0.  `{{:key}} {{?:key2}} {{?!key2}} {{?}} {{/}}` - Complex if/else if/else conditionals.
+0. `{{:key}} {{/key}}` - Positive conditional.
+0. `{{!key}} {{/key}}` - Negative conditional.
+0. `{{:key}} {{?:key2}} {{?!key2}} {{?}} {{/}}` - Complex if/else if/else conditionals.
 0. `{{>key}}`- Partial.
 0. `{{+key}} {{/key}}` - Custom partial.
 0. `{{*key}}` - Global data.
-0.  `{{#key}} {{key}}` - Section, object or array.
-0.  `{{%key}}` - HTML encode (`><&"`)
-0.  `{{@key}}` - Extra data during array iteration.
-0.  `{{~key}}` - Helpers.
-0.  `{{$}} {{/key}}` - Preserve.
-0.  `{{---key}}` - Reach up X number of scopes based on count of `-`.
+0. `{{#key}} {{key}}` - Section, object or array.
+0. `{{%key}}` - HTML encode (`><&"`)
+0. `{{@key}}` - Extra data during array iteration.
+0. `{{~key}}` - Helpers.
+0. `{{$}} {{/key}}` - Preserve.
+0. `{{---key}}` - Reach up X number of scopes based on count of `-`.
 
 <a name="tags_understanding_tags">
 ### Understanding tags
@@ -148,9 +148,9 @@ All tags follows the pattern `{{[operator][lookup][locatorChain]}}`.
 Valid Tag Examples
 
 0. `{{foo}}` - Output a simple variable
-0.  `{{%foo}}` - Output a variable and encode.
+0. `{{%foo}}` - Output a variable and encode.
 0. `{{#foo().baz}} {{/}}` - Iterate over the value at `foo().baz` in normal data.
-0.  `{{#*data.bar()}} {{/}}` - Iterate over the value at `globalData.bar`.
+0. `{{#*data.bar()}} {{/}}` - Iterate over the value at `globalData.bar`.
 0. `{{foo(data.bar).baz}}` - Output a variable which is contained by calling the function passed at `foo` with an argument which is the value passed at `bar` and then get `baz` out of that result.
 0. `{{:~var.test}} {{/}}` - Test if a helper declared var is truthy.
 
@@ -163,8 +163,8 @@ You can execute arbitrary javascript within certain tags. In doing so it will `e
 
 0. `data.` - Accesses the data at the current context.
 1. `global.` - Access the data in the globalData context (`*`).
-2.  `helpers.` - Access the helpers (`~`).
-3.  `extra.` - Access the extraData (`@`).
+2. `helpers.` - Access the helpers (`~`).
+3. `extra.` - Access the extraData (`@`).
 
 **NOTE:** JS expressions can not return async.
 
@@ -557,6 +557,15 @@ Level2: two
 Level3: three
 ```
 
+### Comments
+
+Block comments. Nothing will be output if it is between `{{!--` and `--}}`.
+
+```html
+    {{!-- in a comment --}} out of a comment
+    {{!--------- in a comment -- -----}} out of a comment
+```
+
 ## Helpers
 
 Helpers are a `lookup` area which provides access to some useful functions as well as being a place where you can add plugins allowing you to pass additional functionality into your template system.
@@ -711,4 +720,47 @@ Result. Hotels 2 and 3 are filtered out because they are `published` is `false` 
 <div>Invalid</div>
 <div>Invalid</div>
 <div>Hotel 4</div>
+```
+
+### helpers.fill `{{~fill(template, data, partials, global)}}`
+
+This method allows you to execute a goatee fill within an existing template. This inception allows for the possibility of using dynamic named partials.
+
+```html
+{{+field}}
+    <div>
+        <span class="label">{{label}}</span>
+        <span class="value">
+            {{:valueTemplate}}{{~fill(helpers.partial(data.valueTemplate), data)}}{{?}}{{value}}{{/}}
+        </span>
+    </div>
+{{/}}
+
+{{+link}}
+    <a href="{{value}}" target="{{target}}">{{value}}</a>
+{{/}}
+
+{{~setVar("fields", [
+    { label : "Field 1", value : "value1" },
+    { label : "Field 2", value : "http://www.google.com/", target="_blank", valueTemplate : "link" },
+    { label : "Field 3", value : "value3" }
+])}}
+
+{{#~var.fields}}
+    {{>field}}
+{{/}}
+
+<!-- result -->
+    <div>
+        <span class="label">Field 1</span>
+        <span class="value">value1</span>
+    </div>
+    <div>
+        <span class="label">Field 2</span>
+        <span class="value"><a href="http://www.google.com/" target="_blank">http://www.google.com/</a></span>
+    </div>
+    <div>
+        <span class="label">Field 3</span>
+        <span class="value">value3</span>
+    </div>
 ```

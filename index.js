@@ -7,6 +7,8 @@ if (typeof exports === 'object' && typeof define !== 'function') {
 
 define(function(require, exports, module) {
 	(function() {
+		var commentOpen = "ᾷ";
+		var commentClose = "ἔ";
 		var openChar = "Ͼ";
 		var closeChar = "Ͽ";
 		var parenChar = "Ԓ";
@@ -17,8 +19,8 @@ define(function(require, exports, module) {
 		// lexes the template to detect opening and closing tags and parens
 		var lexer = function(html) {
 			// convert open close to single chars to make algorithm easier
-			var temp = html.replace(/(\{\{|\}\})/g, function(val, i) {
-				return val === "{{" ? openChar : closeChar;
+			var temp = html.replace(/(\{\{!--|--\}\}|\{\{|\}\})/g, function(val, i) {
+				return val === "{{" ? openChar : val === "}}" ? closeChar : val === "{{!--" ? commentOpen : commentClose;
 			});
 			
 			var result = "";
@@ -27,19 +29,32 @@ define(function(require, exports, module) {
 			var inParen = false;
 			var inSingle = false;
 			var inDouble = false;
+			var inRegex = false;
+			var inComment = false;
 			
 			var openCount = 0;
+			var c;
+			var lastC;
 			
 			for(var i = 0; i < temp.length; i++) {
-				var c = temp[i];
+				c = temp[i];
 				
-				if (inTag) {
+				if (inComment && c === commentClose) {
+					inComment = false;
+					c = "";
+				} else if (inComment) {
+					c = "";
+				} else if (inTag) {
 					// inside tag
 					if (inParen) {
 						if (c === openChar) {
 							c = "{{"
 						} else if (c === closeChar) {
 							c = "}}";
+						} else if (inRegex && c === "/" && lastC !== "\\") {
+							inRegex = false;
+						} else if (inRegex) {
+							// inside regex do nothing
 						} else if (inSingle && c === "'") {
 							inSingle = false;
 						} else if (inSingle) {
@@ -48,6 +63,8 @@ define(function(require, exports, module) {
 							inDouble = false;
 						} else if (inDouble) {
 							// inside double do nothing
+						} else if (c === "/") {
+							inRegex = true;
 						} else if (c === "(") {
 							openCount++;
 						} else if (c === ")") {
@@ -69,6 +86,9 @@ define(function(require, exports, module) {
 					} else if (c === closeChar) {
 						inTag = false;
 					}
+				} else if (c === commentOpen) {
+					inComment = true;
+					c = "";
 				} else if (c === openChar) {
 					// not in tag, open char
 					inTag = true;
@@ -77,6 +97,7 @@ define(function(require, exports, module) {
 					c = "}}";
 				}
 				
+				lastC = c;
 				result += c;
 			}
 			
@@ -88,36 +109,6 @@ define(function(require, exports, module) {
 				return val === openChar ? "{{" : val === closeChar ? "}}" : ""
 			});
 		}
-		
-		var fill = function(html, data, partials, globalData, plugins) {
-			if (typeof partials == "undefined") {
-				partials = {};
-			}
-			if (typeof globalData == "undefined") {
-				globalData = data;
-			}
-			if (data === undefined) {
-				data = {};
-			}
-			
-			var lexedHtml = lexer(html);
-			var context = getTemplateContext(lexedHtml);
-			var myPartials = {};
-			for(var i in partials) {
-				var temp = lexer(partials[i]);
-				myPartials[i] = {
-					context : getTemplateContext(temp),
-					raw : partials[i],
-					html : temp
-				};
-			}
-			
-			var helpers = new Helpers({ partials : myPartials, plugins : plugins || {} });
-			
-			var result = processTags(lexedHtml, context, [ data ], myPartials, {}, globalData, helpers);
-			
-			return result;
-		};
 		
 		var getTemplateContext = function(html) {
 			var currentHTML = html;
@@ -443,6 +434,7 @@ define(function(require, exports, module) {
 			self.var = {};
 			
 			self._partials = args.partials;
+			self._goatee = args.goatee;
 			self.plugins = args.plugins;
 		}
 		
@@ -493,6 +485,12 @@ define(function(require, exports, module) {
 			self.var[arg1] = arg2;
 		}
 		
+		Helpers.prototype.fill = function() {
+			var self = this;
+			
+			return self._goatee.fill.apply(self._goatee, arguments);
+		}
+		
 		var Goatee = function(args) {
 			var self = this;
 			
@@ -533,7 +531,7 @@ define(function(require, exports, module) {
 				myPartials[i] = self._processTemplate(partials[i]);
 			}
 			
-			var helpers = new Helpers({ partials : myPartials, plugins : self._plugins || {} });
+			var helpers = new Helpers({ partials : myPartials, plugins : self._plugins || {}, goatee : self });
 			
 			var result = processTags(template.html, template.context, [ data ], myPartials, {}, globalData, helpers, self._plugins);
 			

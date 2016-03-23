@@ -44,6 +44,16 @@ describe(__filename, function() {
 			assert.equal(goatee._lexer("{{foo.bar().baz(function() {}).qux(function() { console.log(')'); stuff = \")\"; data = \"{{tag}}\"; }).moo}}"), "Ͼfoo.barԒ(Ԓ).bazԒ(function() {}Ԓ).quxԒ(function() { console.log(')'); stuff = \")\"; data = \"{{tag}}\"; }Ԓ).mooϿ");
 		});
 		
+		it("should handle regex", function() {
+			assert.equal(goatee._lexer("{{foo.bar().baz.match(/something \\) \\\/foo\\\/bar\\\/baz\\\/ end/g)}}"), "Ͼfoo.barԒ(Ԓ).baz.matchԒ(/something \\) \\/foo\\/bar\\/baz\\/ end/gԒ)Ͽ");
+			assert.equal(goatee._lexer("{{foo.match(/'stuff\\)\"why\\(/i)}}"), "Ͼfoo.matchԒ(/'stuff\\)\"why\\(/iԒ)Ͽ");
+		});
+		
+		it("should remove comments", function() {
+			assert.equal(goatee._lexer("{{stuff}} {{!--- content {{foo}} ---}} {{stuff}}"), "ϾstuffϿ  ϾstuffϿ");
+			assert.equal(goatee._lexer("{{stuff}} {{!------ content --> <!-- ------}} {{stuff}}"), "ϾstuffϿ  ϾstuffϿ");
+		});
+		
 		it("should unlex", function() {
 			assert.equal(goatee._unlex("ϾfooϿ ϾbarϿ Ͼ:test.somethingϿ content Ͼ/test.somethingϿ"), "{{foo}} {{bar}} {{:test.something}} content {{/test.something}}");
 		});
@@ -582,6 +592,44 @@ describe(__filename, function() {
 			assert.notEqual(temp._templateCache[template].context, undefined);
 			
 			assert.strictEqual(temp.fill(template, { data : "yes" }), "yes");
+		});
+		
+		it("should handle regex", function() {
+			var tests = [
+				["{{test.match(/foo '(.*?)'/).1}}", { test : "foo 'TeST' more" }, "TeST"],
+				["{{~exec(new RegExp('\\\\(success').toString())}}", {}, "/\\(success/"],
+				["{{:foo.match(/\\(success/)}}true{{/foo.match}}", { foo : "(success" }, "true"]
+			]
+			
+			tests.forEach(function(val, i) {
+				assert.strictEqual(goatee.fill(val[0], val[1]), val[2]);
+			});
+		});
+		
+		it("should allow nested fills", function() {
+			var tests = [
+				[
+					["{{~fill(helpers.partial(data.foo), { success : true })}}", { foo : "myPartial" }, { myPartial : "{{success}}", wrongPartial : "{{fail}}" }],
+					"true"
+				],
+				[
+					// right now helpers do not pass through to the next level fills
+					["{{~setVar('foo', 'fooValue')}}{{~fill('{{~var.foo}}', {})}}", {}],
+					""
+				],
+				[
+					// plugins are shared since it is the same root goatee object executing both fills()
+					["{{~plugins.foo.test()}} {{~fill('{{~plugins.foo.test()}}', {})}}", {}],
+					"testResult testResult"
+				]
+			]
+			
+			var g = new goatee.Goatee();
+			g.addPlugin("foo", { test : function() { return "testResult" } });
+			
+			tests.forEach(function(val, i) {
+				assert.strictEqual(g.fill.apply(g, val[0]), val[1]);
+			});
 		});
 	});
 	
