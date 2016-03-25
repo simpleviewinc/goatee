@@ -206,7 +206,7 @@ The following cases will run the contents of the tag.
 
 0. Arrays with length > 0
 0. Objects that have keys.
-0. Strings which are not "".
+0. Strings which are not "" and are not "false".
 0. Any number.
 
 Template
@@ -232,7 +232,7 @@ The following cases will run the contents of the tag.
 
 0. Arrays with length === 0
 0. Objects that have 0 keys.
-0. Strings which are "".
+0. Strings which are "" or are "false".
 0. `undefined`
 0. `false`
 
