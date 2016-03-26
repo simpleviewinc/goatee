@@ -30,6 +30,8 @@ define(function(require, exports, module) {
 			var inSingle = false;
 			var inDouble = false;
 			var inRegex = false;
+			var inJsMultiComment = false;
+			var inJsLineComment = false;
 			var inComment = false;
 			
 			var openCount = 0;
@@ -51,6 +53,14 @@ define(function(require, exports, module) {
 							c = "{{"
 						} else if (c === closeChar) {
 							c = "}}";
+						} else if (inJsMultiComment && c === "/" && temp[i - 1] === "*") {
+							inJsMultiComment = false;
+						} else if (inJsMultiComment) {
+							// inside jsMultiComment do nothing
+						} else if (inJsLineComment && c === "\n") {
+							inJsLineComment = false;
+						} else if (inJsLineComment) {
+							// inside jsLineComment do nothing
 						} else if (inRegex && c === "/" && lastC !== "\\") {
 							inRegex = false;
 						} else if (inRegex) {
@@ -63,6 +73,10 @@ define(function(require, exports, module) {
 							inDouble = false;
 						} else if (inDouble) {
 							// inside double do nothing
+						} else if (c === "/" && temp[i + 1] === "*") {
+							inJsMultiComment = true;
+						} else if (c === "/" && temp[i + 1] === "/") {
+							inJsLineComment = true;
 						} else if (c === "/") {
 							inRegex = true;
 						} else if (c === "(") {

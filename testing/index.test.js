@@ -47,6 +47,12 @@ describe(__filename, function() {
 		it("should handle regex", function() {
 			assert.equal(goatee._lexer("{{foo.bar().baz.match(/something \\) \\\/foo\\\/bar\\\/baz\\\/ end/g)}}"), "Ͼfoo.barԒ(Ԓ).baz.matchԒ(/something \\) \\/foo\\/bar\\/baz\\/ end/gԒ)Ͽ");
 			assert.equal(goatee._lexer("{{foo.match(/'stuff\\)\"why\\(/i)}}"), "Ͼfoo.matchԒ(/'stuff\\)\"why\\(/iԒ)Ͽ");
+			assert.equal(goatee._lexer("{{~exec(function() { /// ) mismatch comment \n var stuff = true })}}"), "Ͼ~execԒ(function() { /// ) mismatch comment \n var stuff = true }Ԓ)Ͽ");
+		});
+		
+		it("should handle js comments", function() {
+			assert.equal(goatee._lexer("{{~exec(function() { var foo = 'something'; // ignore ) this \n var bar = false })}}"), "Ͼ~execԒ(function() { var foo = 'something'; // ignore ) this \n var bar = false }Ԓ)Ͽ");
+			assert.equal(goatee._lexer("{{~exec(function() { var foo = true; /* ) /// ignore multi \n and this \n and this */ var bar = false })}}"), "Ͼ~execԒ(function() { var foo = true; /* ) /// ignore multi \n and this \n and this */ var bar = false }Ԓ)Ͽ");
 		});
 		
 		it("should remove comments", function() {
