@@ -44,9 +44,9 @@ describe(__filename, function() {
 			assert.equal(goatee._lexer("{{foo.bar().baz(function() {}).qux(function() { console.log(')'); stuff = \")\"; data = \"{{tag}}\"; }).moo}}"), "Ͼfoo.barԒ(Ԓ).bazԒ(function() {}Ԓ).quxԒ(function() { console.log(')'); stuff = \")\"; data = \"{{tag}}\"; }Ԓ).mooϿ");
 		});
 		
-		it("should handle js comments", function() {
-			assert.equal(goatee._lexer("{{~exec(function() { var foo = 'something'; // ignore ) this \n var bar = false })}}"), "Ͼ~execԒ(function() { var foo = 'something'; // ignore ) this \n var bar = false }Ԓ)Ͽ");
-			assert.equal(goatee._lexer("{{~exec(function() { var foo = true; /* ) /// ignore multi \n and this \n and this */ var bar = false })}}"), "Ͼ~execԒ(function() { var foo = true; /* ) /// ignore multi \n and this \n and this */ var bar = false }Ԓ)Ͽ");
+		it("should does not handle js comments", function() {
+			assert.equal(goatee._lexer("{{~exec(function() { var foo = 'something'; // ignore ) this \n var bar = false })}}"), "Ͼ~execԒ(function() { var foo = 'something'; // ignore Ԓ) this \n var bar = false })Ͽ");
+			assert.equal(goatee._lexer("{{~exec(function() { var foo = true; /* ) /// ignore multi \n and this \n and this */ var bar = false })}}"), "Ͼ~execԒ(function() { var foo = true; /* Ԓ) /// ignore multi \n and this \n and this */ var bar = false })Ͽ");
 		});
 		
 		it("should remove comments", function() {
@@ -594,9 +594,11 @@ describe(__filename, function() {
 			assert.strictEqual(temp.fill(template, { data : "yes" }), "yes");
 		});
 		
-		it("should handle RegExp", function() {
+		it("should handle regex", function() {
 			var tests = [
-				["{{~exec(new RegExp('\\\\(success').toString())}}", {}, "/\\(success/"]
+				["{{~exec(new RegExp('\\\\(success').toString())}}", {}, "/\\(success/"],
+				['{{~exec(data.url.replace(/r\\//, "b"))}}', { url : "/foo/bar/baz/" }, "/foo/babbaz/"],
+				['{{~exec(data.url.replace(/[(]/, "asdf"))}}', { url : "some value (foo)" }, 'Ͼ~execԒ(data.url.replace(/[(]/, "asdf"))}}'] // paren throws off the lexer
 			]
 			
 			tests.forEach(function(val, i) {
