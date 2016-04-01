@@ -44,12 +44,6 @@ describe(__filename, function() {
 			assert.equal(goatee._lexer("{{foo.bar().baz(function() {}).qux(function() { console.log(')'); stuff = \")\"; data = \"{{tag}}\"; }).moo}}"), "Ͼfoo.barԒ(Ԓ).bazԒ(function() {}Ԓ).quxԒ(function() { console.log(')'); stuff = \")\"; data = \"{{tag}}\"; }Ԓ).mooϿ");
 		});
 		
-		it("should handle regex", function() {
-			assert.equal(goatee._lexer("{{foo.bar().baz.match(/something \\) \\\/foo\\\/bar\\\/baz\\\/ end/g)}}"), "Ͼfoo.barԒ(Ԓ).baz.matchԒ(/something \\) \\/foo\\/bar\\/baz\\/ end/gԒ)Ͽ");
-			assert.equal(goatee._lexer("{{foo.match(/'stuff\\)\"why\\(/i)}}"), "Ͼfoo.matchԒ(/'stuff\\)\"why\\(/iԒ)Ͽ");
-			assert.equal(goatee._lexer("{{~exec(function() { /// ) mismatch comment \n var stuff = true })}}"), "Ͼ~execԒ(function() { /// ) mismatch comment \n var stuff = true }Ԓ)Ͽ");
-		});
-		
 		it("should handle js comments", function() {
 			assert.equal(goatee._lexer("{{~exec(function() { var foo = 'something'; // ignore ) this \n var bar = false })}}"), "Ͼ~execԒ(function() { var foo = 'something'; // ignore ) this \n var bar = false }Ԓ)Ͽ");
 			assert.equal(goatee._lexer("{{~exec(function() { var foo = true; /* ) /// ignore multi \n and this \n and this */ var bar = false })}}"), "Ͼ~execԒ(function() { var foo = true; /* ) /// ignore multi \n and this \n and this */ var bar = false }Ԓ)Ͽ");
@@ -600,11 +594,9 @@ describe(__filename, function() {
 			assert.strictEqual(temp.fill(template, { data : "yes" }), "yes");
 		});
 		
-		it("should handle regex", function() {
+		it("should handle RegExp", function() {
 			var tests = [
-				["{{test.match(/foo '(.*?)'/).1}}", { test : "foo 'TeST' more" }, "TeST"],
-				["{{~exec(new RegExp('\\\\(success').toString())}}", {}, "/\\(success/"],
-				["{{:foo.match(/\\(success/)}}true{{/foo.match}}", { foo : "(success" }, "true"]
+				["{{~exec(new RegExp('\\\\(success').toString())}}", {}, "/\\(success/"]
 			]
 			
 			tests.forEach(function(val, i) {

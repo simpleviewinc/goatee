@@ -29,7 +29,6 @@ define(function(require, exports, module) {
 			var inParen = false;
 			var inSingle = false;
 			var inDouble = false;
-			var inRegex = false;
 			var inJsMultiComment = false;
 			var inJsLineComment = false;
 			var inComment = false;
@@ -61,10 +60,6 @@ define(function(require, exports, module) {
 							inJsLineComment = false;
 						} else if (inJsLineComment) {
 							// inside jsLineComment do nothing
-						} else if (inRegex && c === "/" && lastC !== "\\") {
-							inRegex = false;
-						} else if (inRegex) {
-							// inside regex do nothing
 						} else if (inSingle && c === "'") {
 							inSingle = false;
 						} else if (inSingle) {
@@ -77,8 +72,6 @@ define(function(require, exports, module) {
 							inJsMultiComment = true;
 						} else if (c === "/" && temp[i + 1] === "/") {
 							inJsLineComment = true;
-						} else if (c === "/") {
-							inRegex = true;
 						} else if (c === "(") {
 							openCount++;
 						} else if (c === ")") {
