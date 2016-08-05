@@ -484,6 +484,10 @@ define(function(require, exports, module) {
 			return self._goatee.fill.apply(self._goatee, arguments);
 		}
 		
+		Helpers.prototype.stringify = function(arg1, arg2, arg3) {
+			return JSON.stringify(arg1, arg2, arg3);
+		}
+		
 		var Goatee = function(args) {
 			var self = this;
 			

@@ -542,6 +542,14 @@ describe(__filename, function() {
 			logPatch.unpatch();
 		});
 		
+		it("should stringify", function() {
+			var result = goatee.fill("{{~stringify(data.foo)}}", { foo : { key : "something", arr : [1,2] } });
+			assert.strictEqual(result, '{"key":"something","arr":[1,2]}');
+			
+			var result = goatee.fill("{{~stringify(data.foo, null, '\t')}}", { foo : { key : "something", arr : [1,2] } });
+			assert.strictEqual(result, '{\n\t"key": "something",\n\t"arr": [\n\t\t1,\n\t\t2\n\t]\n}');
+		});
+		
 		it("should not run preserved html", function() {
 			var inner = "{{#foo}} {{something}} {{/foo}} {{>more}} {{#foo}}{{#bar}}{{>foo}}{{/bar}}{{/foo}}";
 			assert.equal(goatee.fill("{{$}}" + inner + "{{/}}", { foo : "no" }), inner);
