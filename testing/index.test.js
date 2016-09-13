@@ -111,9 +111,11 @@ describe(__filename, function() {
 		});
 		
 		it("should encode variables", function() {
-			var keyString = "<foo> \"double\" 'single'";
+			var keyString = "<foo> \"double\" 'single' ! @ # $ % ^ & * ( ) { } | [ ] \\ ; ' : , . / < > ?";
 			
-			assert.equal("&lt;foo&gt; &quot;double&quot; &apos;single&apos;", goatee.fill("{{%key}}", { key : keyString }));
+			assert.equal(goatee.fill("{{%key}}", { key : keyString }), "&lt;foo&gt; &quot;double&quot; &apos;single&apos; ! @ # $ % ^ &amp; * ( ) { } | [ ] \\ ; &apos; : , . / &lt; &gt; ?");
+			
+			assert.strictEqual(goatee.fill("{{%%key}}", { key : keyString }), "%3Cfoo%3E%20%22double%22%20%27single%27%20!%20%40%20%23%20%24%20%25%20%5E%20%26%20*%20(%20)%20%7B%20%7D%20%7C%20%5B%20%5D%20%5C%20%3B%20%27%20%3A%20%2C%20.%20%2F%20%3C%20%3E%20%3F");
 		});
 		
 		it("should return yes", function() {

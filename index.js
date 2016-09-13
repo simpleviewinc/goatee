@@ -13,7 +13,7 @@ define(function(require, exports, module) {
 		var closeChar = "Ͽ";
 		var parenChar = "Ԓ";
 		
-		var tagMatcher = /Ͼ([\?]?)([\$#!:\/\>\+%]?)(-*?)([~\*@]?)(\w+(Ԓ\([\s\S]*?Ԓ\))?(\.\w+(Ԓ\([\s\S]*?Ԓ\))?)*?)?Ͽ/g
+		var tagMatcher = /Ͼ([\?]?)([\$#!:\/\>\+%]?)([%]?)(-*?)([~\*@]?)(\w+(Ԓ\([\s\S]*?Ԓ\))?(\.\w+(Ԓ\([\s\S]*?Ԓ\))?)*?)?Ͽ/g
 		var termMatcher = /(\w+)(Ԓ\([\s\S]*?Ԓ\))?(\.|$)/g
 		
 		// lexes the template to detect opening and closing tags and parens
@@ -127,9 +127,10 @@ define(function(require, exports, module) {
 				var wholeTag = matches[0];
 				var elseTag = matches[1] === "?"; // if this tag is an else tag
 				var operator = matches[2];
-				var backTrack = matches[3];
-				var lookup = matches[4];
-				var tagContent = matches[5];
+				var modifier = matches[3];
+				var backTrack = matches[4];
+				var lookup = matches[5];
+				var tagContent = matches[6];
 				var ifStarterTag = [":", "!"].indexOf(operator) > -1; // if this tag is the opening of an if/else block
 				var ifElseTag = elseTag || ifStarterTag;
 				
@@ -177,6 +178,7 @@ define(function(require, exports, module) {
 						backTrack : backTrack.length,
 						lookup : lookup,
 						command : operator,
+						modifier : modifier,
 						start : matches.index,
 						end : wholeTag.length + matches.index,
 						innerStart : wholeTag.length + matches.index,
@@ -287,8 +289,10 @@ define(function(require, exports, module) {
 						/*** standard tags ***/
 						if (context.tags[i].command === "" || typeof myData !== "string") {
 							returnArray.push(myData)
-						} else {
+						} else if (context.tags[i].modifier === "") {
 							returnArray.push(myData.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;'));
+						} else {
+							returnArray.push(encodeURIComponent(myData).replace(/'/g, "%27"));
 						}
 					} else if (typeof myData.template != "undefined" && typeof myData.data != "undefined") {
 						/*** passing a template and data structure ***/

@@ -123,6 +123,7 @@ Now, downstream you can simply `require("myGoatee.js")` and it will have the plu
 0. `{{*key}}` - Global data.
 0. `{{#key}} {{key}}` - Section, object or array.
 0. `{{%key}}` - HTML encode (`'><&"`)
+0. `{{%%key}}` - URL encode using encodeURIComponent + encoding '
 0. `{{@key}}` - Extra data during array iteration.
 0. `{{~key}}` - Helpers.
 0. `{{$}} {{/key}}` - Preserve.
@@ -196,6 +197,9 @@ result === "test";
 
 var result = goatee.fill("{{%foo}}", { foo : "<div>Test</div>" });
 result === "&lt;div&gt;Test&lt;/div&gt;";
+
+var result = goatee.fill("{{%%foo}}", { foo : "foo 'bar' \"baz\" qux !@#$" });
+result === "foo%20%27bar%27%20%22baz%22%20qux%20!%40%23%24"
 ```
 
 ### Positive conditional `{{:var}} content {{/var}}` (if true)
