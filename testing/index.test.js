@@ -111,7 +111,9 @@ describe(__filename, function() {
 		});
 		
 		it("should encode variables", function() {
-			assert.equal("&lt;foo&gt;", goatee.fill("{{%key}}", { key : "<foo>" }));
+			var keyString = "<foo> \"double\" 'single'";
+			
+			assert.equal("&lt;foo&gt; &quot;double&quot; &apos;single&apos;", goatee.fill("{{%key}}", { key : keyString }));
 		});
 		
 		it("should return yes", function() {
