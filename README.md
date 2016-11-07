@@ -123,7 +123,7 @@ Now, downstream you can simply `require("myGoatee.js")` and it will have the plu
 0. `{{*key}}` - Global data.
 0. `{{#key}} {{key}}` - Section, object or array.
 0. `{{%key}}` - HTML encode (`'><&"`)
-0. `{{%%key}}` - URL encode using encodeURIComponent + encoding '
+0. `{{%%key}}` - URL encode using encodeURIComponent in addition to encoding the `'` character
 0. `{{@key}}` - Extra data during array iteration.
 0. `{{~key}}` - Helpers.
 0. `{{$}} {{/key}}` - Preserve.
@@ -725,6 +725,10 @@ Result. Hotels 2 and 3 are filtered out because they are `published` is `false` 
 <div>Invalid</div>
 <div>Hotel 4</div>
 ```
+
+### helpers.stringify `{{~stringify(data.foo)}}`
+
+Shorthand for `{{~exec(JSON.stringify(data.foo))}}`.
 
 ### helpers.fill `{{~fill(template, data, partials, global)}}`
 
