@@ -261,7 +261,7 @@ define(function(require, exports, module) {
 					
 					if (typeof myData[keyMatch] === "function" && labelArr[j].argString !== undefined) {
 						// if it's a function and we have () then we execute it
-						var argArray;
+						var argArray = undefined;
 						
 						if (labelArr[j].argString !== "") {
 							// in () argString === "", don't eval arguments in that case

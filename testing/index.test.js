@@ -318,6 +318,15 @@ describe(__filename, function() {
 			assert.equal(goatee.fill("{{foo()}}", data), "yes");
 		});
 		
+		it("should not improperly hold function args", function() {
+			var data = {
+				foo : function(arg1) { return arg1 },
+				bar : function(arg2) { return arg2 }
+			}
+			
+			assert.strictEqual(goatee.fill("{{foo('test')}}{{bar()}}{{bar('test3')}}", data), "testtest3");
+		});
+		
 		it("should handler string, number, boolean, array, object and function in function arguments", function() {
 			var data = {
 				foo : function(arg1, arg2, arg3, arg4, arg5, arg6) {
