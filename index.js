@@ -18,12 +18,15 @@ define(function(require, exports, module) {
 		var tagMatcher = /Ͼ([\?]?)([\$#!:\/\>\+%]?)([%]?)(-*?)([~\*@]?)(\w+(Ԓ\([\s\S]*?Ԓ\))?(\.\w+(Ԓ\([\s\S]*?Ԓ\))?)*?)?Ͽ/g
 		var termMatcher = /(\w+)(Ԓ\([\s\S]*?Ԓ\))?(\.|$)/g
 		
+		var lexerRegex = /(\{\{!--|--\}\}|\{\{|\}\})/g;
+		var lexerReplace = function(val, i) {
+			return val === "{{" ? openChar : val === "}}" ? closeChar : val === "{{!--" ? commentOpen : commentClose;
+		}
+		
 		// lexes the template to detect opening and closing tags and parens
 		var lexer = function(html) {
 			// convert open close to single chars to make algorithm easier
-			var temp = html.replace(/(\{\{!--|--\}\}|\{\{|\}\})/g, function(val, i) {
-				return val === "{{" ? openChar : val === "}}" ? closeChar : val === "{{!--" ? commentOpen : commentClose;
-			});
+			var temp = html.replace(lexerRegex, lexerReplace);
 			
 			var result = "";
 			
@@ -99,10 +102,12 @@ define(function(require, exports, module) {
 			return result;
 		}
 		
+		var unlexRegex = /[ϾϿԒ]/g;
+		var unlexReplace = function(val, i) {
+			return val === openChar ? "{{" : val === closeChar ? "}}" : ""
+		};
 		var unlex = function(html) {
-			return html.replace(/[ϾϿԒ]/g, function(val, i) {
-				return val === openChar ? "{{" : val === closeChar ? "}}" : ""
-			});
+			return html.replace(unlexRegex, unlexReplace);
 		}
 		
 		var getTemplateContext = function(html) {
