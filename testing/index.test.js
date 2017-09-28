@@ -652,6 +652,58 @@ describe(__filename, function() {
 				assert.strictEqual(g.fill.apply(g, val[0]), val[1]);
 			});
 		});
+		
+		describe("test array", function() {
+			var tests = [
+				{
+					name : "Not improperly fill missing keys with key at undefined",
+					template : "{{foo.bar}}",
+					data : { foo : { undefined : "bogus" } },
+					result : ""
+				},
+				{
+					name : "should fill if key is named undefined",
+					template : "{{foo.undefined}}",
+					data : { foo : { undefined : "success" } },
+					result : "success"
+				},
+				{
+					name : "exec should warn on bad function def",
+					template : "{{~exec(bogus())}}",
+					data : {},
+					result : "",
+					messages : [
+						"bogus is not defined"
+					]
+				},
+				{
+					name : "exec should receive each argument type",
+					template : "{{~setVar('foo', 'helpersFoo')}}{{#obj}}{{~exec([data.foo, global.foo, helpers.var.foo, extra.row].join(','))}}{{/}}",
+					data : {
+						foo : "globalFoo",
+						obj : [
+							{
+								foo : "dataFoo"
+							}
+						]
+					},
+					result : "dataFoo,globalFoo,helpersFoo,1"
+				}
+			]
+			
+			tests.forEach(function(test) {
+				it(test.name, function() {
+					var result = goatee.fill(test.template, test.data);
+					assert.strictEqual(result, test.result);
+					
+					if (test.messages !== undefined) {
+						test.messages.forEach(function(val, i) {
+							assert.strictEqual(warnPatch.messages[i][0], val);
+						});
+					}
+				});
+			});
+		});
 	});
 	
 	describe("plugins", function() {

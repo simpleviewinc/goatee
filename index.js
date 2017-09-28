@@ -1,3 +1,5 @@
+"use strict";
+
 // umd boilerplate for CommonJS and AMD
 if (typeof exports === 'object' && typeof define !== 'function') {
 	var define = function (factory) {
@@ -252,6 +254,12 @@ define(function(require, exports, module) {
 					}
 					
 					var keyMatch = getKeyMatch(myData, labelArr[j].label);
+					
+					if (keyMatch === undefined) {
+						// key didn't match hop out
+						myData = undefined;
+						break;
+					}
 					
 					if (myData[keyMatch] === undefined) {
 						// set to undefined because it means we were not able to process all labels
@@ -590,13 +598,36 @@ define(function(require, exports, module) {
 		console.warn(e.message, e.stack);
 	}
 	
+	// we mask these args with undefined to prevent exec from reaching them
+	var maskArgs = [
+		"window",
+		"process",
+		"require",
+		"setTimeout",
+		"setInterval",
+		"clearTimeout",
+		"clearInterval",
+		"__dirname",
+		"__filename",
+		"module",
+		"exports",
+		"Buffer",
+		"define"
+	];
+	
+	var maskedValues = [];
+	for(var i = 0; i < maskArgs.length; i++) {
+		maskedValues.push(undefined);
+	}
+	
 	var evalArgs = function(str, data, global, extra, helpers) {
-		// we var all important variables to negate closure scope preventing eval from escalating out of the sandbox
-		var window, process, require, setTimeout, setInterval, clearTimeout, clearInterval, __dirname, __filename, module, exports, Buffer, define;
-		arguments = [];
+		var fnArgs = [null].concat(maskArgs).concat(["data", "global", "extra", "helpers", "return [" + str + "]"]);
 		
 		try {
-			var temp = eval("[" + str + "]");
+			// create a function using our array of arguments and fn string
+			var fn = new (Function.prototype.bind.apply(Function, fnArgs));
+			// exec the function passing our relevant keys and the masked keys, this generates an array of args
+			var temp = fn.apply(null, maskedValues.concat([data, global, extra, helpers]));
 		} catch (e) {
 			warn(e);
 			return e;
