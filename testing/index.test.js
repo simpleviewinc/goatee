@@ -138,7 +138,8 @@ describe(__filename, function() {
 				[{ foo : false }, false],
 				[{ foo : null }, false],
 				[{ foo : undefined }, false],
-				[{ foo : 0 }, true],
+				[{ foo : 0 }, false],
+				[{ foo : NaN }, false],
 				[{ foo : 1 }, true],
 				[{ foo : -1 }, true],
 				[{ foo : new Date() }, true]
@@ -164,7 +165,8 @@ describe(__filename, function() {
 				[{ foo : false }, true],
 				[{ foo : null }, true],
 				[{ foo : undefined }, true],
-				[{ foo : 0 }, false],
+				[{ foo : NaN }, true],
+				[{ foo : 0 }, true],
 				[{ foo : 1 }, false],
 				[{ foo : -1 }, false],
 				[{ foo : new Date() }, false]

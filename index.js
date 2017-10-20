@@ -292,6 +292,8 @@ define(function(require, exports, module) {
 					}
 				}
 				
+				var typeofMyData = typeof myData;
+				
 				if (context.tags[i].command === "" || context.tags[i].command === "%") {
 					if (context.tags[i].elseTag === true && ifElseActivated === false) {
 						ifElseActivated = true;
@@ -354,9 +356,9 @@ define(function(require, exports, module) {
 					}
 				} else if (context.tags[i].command === ":") {
 					if (
-						typeof myData != "undefined" &&
+						typeofMyData !== "undefined" &&
 						ifElseActivated === false && (
-							(typeof myData == "string" && myData != "" && myData != "false")
+							(typeofMyData === "string" && myData !== "" && myData !== "false")
 							|| 
 							(myData instanceof Array && myData.length > 0)
 							||
@@ -364,9 +366,9 @@ define(function(require, exports, module) {
 							||
 							(myData instanceof Object && !isEmpty(myData))
 							||
-							(typeof myData == "boolean" && myData != false)
+							(typeofMyData === "boolean" && myData !== false)
 							||
-							(typeof myData == "number")
+							(typeofMyData === "number" && myData !== 0 && isNaN(myData) === false)
 						)
 					) {
 						ifElseActivated = true;
@@ -376,9 +378,9 @@ define(function(require, exports, module) {
 					if (
 						myData instanceof Date === false &&
 						ifElseActivated === false && (
-							(typeof myData == "undefined")
+							(typeofMyData === "undefined")
 							||
-							(typeof myData == "string" && (myData == "" || myData == "false"))
+							(typeofMyData === "string" && (myData === "" || myData === "false"))
 							||
 							(myData instanceof Array && myData.length == 0)
 							||
@@ -386,7 +388,9 @@ define(function(require, exports, module) {
 							||
 							(myData instanceof Object && isEmpty(myData))
 							||
-							(typeof myData == "boolean" && myData == false)
+							(typeofMyData === "boolean" && myData === false)
+							||
+							(typeofMyData === "number" && (myData === 0 || isNaN(myData) === true))
 						)
 					) {
 						ifElseActivated = true;
