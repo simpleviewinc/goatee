@@ -1,18 +1,20 @@
 {
-	"name" : "goatee",
-	"description" : "Powerful yet simple templating system with Mustache style syntax and many more features. Works in node and browser with requirejs.",
-	"author" : "Owen Allen <owenallenaz@gmail.com>",
-	"version" : "1.3.9",
-	"devDependencies" : {
-		"mocha" : "*"
+	"name": "goatee",
+	"description": "Powerful yet simple templating system with Mustache style syntax and many more features. Works in node and browser with requirejs.",
+	"author": "Owen Allen <owenallenaz@gmail.com>",
+	"version": "1.3.9",
+	"devDependencies": {
+		"mocha": "*"
 	},
-	"engines" : { "node" : ">=0.10.x" },
-	"scripts" : {
-		"test" : "./node_modules/mocha/bin/mocha $(find testing/ -name *.test.js) -R spec --colors --check-leaks"
+	"engines": {
+		"node": ">=0.10.x"
 	},
-	"repository" : {
-		"type" : "git",
-		"url" : "https://github.com/simpleviewinc/goatee.git"
+	"scripts": {
+		"test": "./node_modules/mocha/bin/mocha $(find testing/ -name *.test.js) -R spec --colors --check-leaks"
 	},
-	"license" : "MIT"
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/simpleviewinc/goatee.git"
+	},
+	"license": "MIT"
 }

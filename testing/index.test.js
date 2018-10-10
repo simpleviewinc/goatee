@@ -394,9 +394,9 @@ describe(__filename, function() {
 		});
 		
 		it("should not have access to important variables", function() {
-			var allUndefined = function(arg1) { return arg1.filter(function(val) { return val !== undefined }).length === 0; }
+			var allUndefined = function(arg1) { return arg1.filter(function(val) { return val !== undefined && val !== null }).length === 0; }
 			
-			var html = "{{foo([window, process, require, setTimeout, setInterval, clearTimeout, clearInterval, __dirname, __filename, module, exports, Buffer, define])}}";
+			var html = "{{foo([window, process, require, setTimeout, setInterval, clearTimeout, clearInterval, __dirname, __filename, module, exports, Buffer, define, this])}}";
 			assert.equal(goatee.fill(html, { foo : allUndefined }), "true");
 		});
 		
@@ -496,6 +496,8 @@ describe(__filename, function() {
 			assert.equal(goatee.fill("{{~exec(function() { fake.is.real = foo; return 'no' })}}", {}), "");
 			// ensure it does not allow access to important variables
 			assert.equal(goatee.fill("{{~exec(function() { return process === undefined })}}", {}), "true");
+			// ensure it can't reach the this variable
+			assert.equal(goatee.fill("{{~exec(function() { return this === undefined })}}", {}), "true");
 			
 			// ensure it can exec without an inner function
 			var data = { foo : "bar", baz : [1,2] };
