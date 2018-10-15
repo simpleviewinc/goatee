@@ -630,7 +630,7 @@ define(function(require, exports, module) {
 	}
 	
 	var evalArgs = function(str, data, global, extra, helpers) {
-		var fnArgs = [null].concat(maskArgs).concat(["data", "global", "extra", "helpers", "'use strict'; return [" + str + "]"]);
+		var fnArgs = [null].concat(maskArgs).concat(["data", "global", "extra", "helpers", "return [" + str + "]"]);
 		
 		try {
 			// create a function using our array of arguments and fn string
