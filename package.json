@@ -41,6 +41,7 @@
 		"build:esm": "rm -rf ./dist/esm && tsc --project ./tsconfig.esm.json",
 		"build:types": "rm -rf ./dist/types && tsc --project ./tsconfig.types.json",
 		"docker": "./src/scripts/run || true",
+		"publish": "./src/scripts/publish",
 		"style": "eslint .",
 		"style:fix": "eslint . --fix",
 		"sync-state": "bash ./src/scripts/sync-state",
