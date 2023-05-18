@@ -1,0 +1,14 @@
+#!/bin/bash
+# NOTE: Don't run this script with PRs, wait until it's merged to develop, this prevents complicated merge conflicts between pending PRS
+docker compose build node
+
+CONTAINER=goatee
+
+docker create --name $CONTAINER $CONTAINER:local /bin/sh
+
+docker cp $CONTAINER:/app/package.json ./package.json
+docker cp $CONTAINER:/app/yarn.lock ./yarn.lock
+rm -rf ./.yarn/*
+docker cp $CONTAINER:/app/.yarn/. ./.yarn
+docker rm -fv $CONTAINER
+echo "complete"

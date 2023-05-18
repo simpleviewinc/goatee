@@ -1,0 +1,19 @@
+version: "3.8"
+services:
+  node:
+    build: "."
+    image: goatee:local
+    volumes:
+      - "./package.json:/app/package.json"
+      - "./tsconfig.json:/app/tsconfig.json"
+      - "./tsconfig.cjs.json:/app/tsconfig.cjs.json"
+      - "./tsconfig.esm.json:/app/tsconfig.esm.json"
+      - "./tsconfig.types.json:/app/tsconfig.types.json"
+      - "./rollup.config.ts:/app/rollup.config.ts"
+      - "./.eslintrc.json:/app/.eslintrc.json"
+      - "./src:/app/src"
+      - "./dist:/app/dist"
+  node_ci:
+    build: "."
+    image: goatee:local
+

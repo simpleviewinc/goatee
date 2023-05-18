@@ -1,0 +1,3 @@
+docker compose build node
+docker compose run --service-ports --rm node /bin/bash
+docker compose down

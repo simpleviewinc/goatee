@@ -1,5 +1,3 @@
-[![Build Status](https://travis-ci.org/simpleviewinc/goatee.svg?branch=master)](https://travis-ci.org/simpleviewinc/goatee)
-
 # goatee
 
 `npm install goatee`
@@ -9,13 +7,13 @@ Powerful yet simple templating system with Mustache style syntax and many more f
 # Documentation
 
 * [Api Documentation](#api_documentation)
-    * [Fill](#api_documentation_fill) 
+    * [Fill](#api_documentation_fill)
     * [Goatee](#api_documentation_goatee)
 * [Tags](#tags)
     * [Quick Reference](#tags_quick_reference)
     * [Understanding Tags](#tags_understanding_tags)
     * [JS Expressions](#tags_js_expressions)
-* [Tag Reference](#tag_reference) 
+* [Tag Reference](#tag_reference)
 
 # Features
 
@@ -134,7 +132,7 @@ Now, downstream you can simply `require("myGoatee.js")` and it will have the plu
 
 All tags follows the pattern `{{[operator][lookup][locatorChain]}}`.
 
-`operators` are `: ! + > $ %`. They instruct the system to DO something with the data, such as reaching inside, checking if it's true. When no operator is present the content at the locator will be output. Tags can never have more than one operator! 
+`operators` are `: ! + > $ %`. They instruct the system to DO something with the data, such as reaching inside, checking if it's true. When no operator is present the content at the locator will be output. Tags can never have more than one operator!
 
 `lookup` are `* @ ~`. They instruct the system where to look for the data. The `lookup` should always happen after the `operator`, e.g. `{{#~var.foo}} {{/}}`.
 
@@ -389,7 +387,7 @@ Re-using a custom partial
     <div class="items"><!-- item content --></div>
     {{>pager}}
 </div>
-``` 
+```
 ```js
 var result = goatee.fill(template, { row : 1, rows : 10, items : [] });
 ```
@@ -430,7 +428,7 @@ var data = {
         {
             title : "Second level Children",
             children : [
-                { title : "Third Level" }   
+                { title : "Third Level" }
             ]
         }
     ]
@@ -438,7 +436,7 @@ var data = {
 
 var result = goatee.fill(template, data);
 ```
-Result. Notice how we are able to create a structure which can iterate over itself as deep as our data requires. 
+Result. Notice how we are able to create a structure which can iterate over itself as deep as our data requires.
 ```html
 <div class="items">
     <div class="item">
@@ -554,7 +552,7 @@ var data = {
 }
 var result = goatee.fill(template, data);
 ```
-Result. In this case we have moved into `foo` and `bar` but we are able to reach up multiple scopes and access data above our current context using the `-`. 
+Result. In this case we have moved into `foo` and `bar` but we are able to reach up multiple scopes and access data above our current context using the `-`.
 ```html
 Level1: one
 Level2: two
@@ -600,7 +598,7 @@ var data = {
 }
 var result = goatee.fill(template, data);
 ```
-Result. In this case we only want to display the image if `rank === 1`. 
+Result. In this case we only want to display the image if `rank === 1`.
 ```html
 <div class="item">
     <img src="foo.png"/>
@@ -617,7 +615,7 @@ Result. In this case we only want to display the image if `rank === 1`.
 
 ### helpers.contains `{{:~contains(arr1, item1)}} content {{/}}`
 
-Contains is a shorthand method for checking if an array contains an item. This is basically a wrapper for `Array.prototype.indexOf`. 
+Contains is a shorthand method for checking if an array contains an item. This is basically a wrapper for `Array.prototype.indexOf`.
 
 ```js
 var template = '{{~contains(data.arr, 5)}}Yes{{/contains}}';

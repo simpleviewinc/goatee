@@ -1,0 +1,17 @@
+{
+	"extends": "@tsconfig/node16/tsconfig.json",
+	"compilerOptions": {
+		"baseUrl": "./",
+		"declaration": false,
+		"noImplicitAny": false,
+		"moduleResolution": "node16",
+		"lib": [
+			"DOM"
+		]
+	},
+	"ts-node": {
+		"transpileOnly": true
+	},
+	"exclude": ["node_modules", "src/testing/**/*", "src/scripts/**/*"],
+	"include": ["src"]
+}
