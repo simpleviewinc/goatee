@@ -15,17 +15,13 @@ class Goatee {
 		this._templateCache = {};
 	}
 	addPlugin(name, plugin) {
-		const self = this;
-
-		if (self._locked) {
+		if (this._locked) {
 			throw new Error("Unable to addPlugin to locked goatee instance as it could cause thread safety issues. If you need to add plugins create your own instance of goatee.Goatee()");
 		}
 
-		self._plugins[name] = plugin;
+		this._plugins[name] = plugin;
 	}
 	fill(html: string, data: object = {}, partials?, globalData?) {
-		const self = this;
-
 		if (typeof partials == "undefined") {
 			partials = {};
 		}
@@ -36,24 +32,22 @@ class Goatee {
 			data = {};
 		}
 
-		const template = self._processTemplate(html);
+		const template = this._processTemplate(html);
 		const myPartials = {};
 		for (const i in partials) {
-			myPartials[i] = self._processTemplate(partials[i]);
+			myPartials[i] = this._processTemplate(partials[i]);
 		}
 
-		const helpers = new Helpers({ partials: myPartials, plugins: self._plugins || {}, goatee: self });
+		const helpers = new Helpers({ partials: myPartials, plugins: this._plugins || {}, goatee: this });
 
 		const result = processTags(template.html, template.context, [ data ], myPartials, {}, globalData, helpers);
 
 		return result;
 	}
 	_processTemplate(html: string) {
-		const self = this;
+		const cached = this._templateCache[html];
 
-		const cached = self._templateCache[html];
-
-		if (self._cache === true && cached !== undefined) {
+		if (this._cache === true && cached !== undefined) {
 			cached.hitCount++;
 			return cached;
 		}
@@ -68,20 +62,17 @@ class Goatee {
 			context: context
 		}
 
-		if (self._cache === true) {
-			self._templateCache[html] = temp;
+		if (this._cache === true) {
+			this._templateCache[html] = temp;
 		}
 
 		return temp;
 	}
 	clearTemplateCache() {
-		const self = this;
-
-		self._templateCache = {};
+		this._templateCache = {};
 	}
 	lock() {
-		const self = this;
-		self._locked = true;
+		this._locked = true;
 	}
 }
 

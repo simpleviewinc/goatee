@@ -24,10 +24,12 @@ class Helpers {
 		return arg1.indexOf(arg2) > -1;
 	}
 	exec(arg1) {
+		let temp;
+
 		if (arg1 instanceof Function) {
 			// if it's a function we have to wrap in another try catch to prevent failures
 			try {
-				var temp = arg1();
+				temp = arg1();
 			} catch (e) {
 				warn(e);
 				return; // return undefined if exec fails
@@ -40,22 +42,16 @@ class Helpers {
 		return temp;
 	}
 	partial(name) {
-		const self = this;
-
-		return self._partials[name].raw;
+		return this._partials[name].raw;
 	}
 	log(...args: Parameters<Console["log"]>) {
-		console.log.apply(console, args);
+		console.log(...args);
 	}
 	setVar(arg1, arg2) {
-		const self = this;
-
-		self.var[arg1] = arg2;
+		this.var[arg1] = arg2;
 	}
 	fill(...args: Parameters<Goatee["fill"]>) {
-		const self = this;
-
-		return self._goatee.fill.apply(self._goatee, args);
+		return this._goatee.fill(...args);
 	}
 	stringify(arg1, arg2, arg3) {
 		return JSON.stringify(arg1, arg2, arg3);

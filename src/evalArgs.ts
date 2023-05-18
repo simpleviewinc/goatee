@@ -23,16 +23,21 @@ for (let i = 0; i < maskArgs.length; i++) {
 }
 
 export default function evalArgs(str, data, global, extra, helpers) {
-	const fnArgs: [any, ...any[]] = [null];
-	fnArgs.push(...maskArgs);
-	fnArgs.push("data", "global", "extra", "helpers", "return [" + str + "]");
+	const fnArgs = [
+		...maskArgs,
+		"data",
+		"global",
+		"extra",
+		"helpers",
+		"return [" + str + "]"
+	];
 
 	let temp;
 	try {
 		// create a function using our array of arguments and fn string
-		const fn = new (Function.prototype.bind.apply(Function, fnArgs));
+		const fn = new Function(...fnArgs);
 		// exec the function passing our relevant keys and the masked keys, this generates an array of args
-		temp = fn.apply(null, maskedValues.concat([data, global, extra, helpers]));
+		temp = fn(...maskedValues, data, global, extra, helpers);
 	} catch (e) {
 		warn(e);
 		return e;
