@@ -9,7 +9,6 @@ function getKeyMatch(obj, key) {
 	}
 
 	const lcaseKey = key.toLowerCase();
-	const map = {};
 
 	for (const prop in obj) {
 		const temp = prop.toLowerCase();
@@ -53,7 +52,7 @@ export default function processTags(html, context: TemplateContext, data, partia
 		position = context.tags[i].end;
 
 		if (context.tags[i].command === ">") {
-			var keyMatch = getKeyMatch(partials, context.tags[i].label);
+			const keyMatch = getKeyMatch(partials, context.tags[i].label);
 			if (keyMatch !== undefined) {
 				returnArray.push(processTags(partials[keyMatch].html, partials[keyMatch].context, data, partials, extraData, globalData, helpers));
 			}
@@ -66,7 +65,7 @@ export default function processTags(html, context: TemplateContext, data, partia
 			continue;
 		}
 
-		var myData;
+		let myData;
 		let dataContext = data;
 		if (context.tags[i].lookup === "*") {
 			myData = globalData;
@@ -82,12 +81,12 @@ export default function processTags(html, context: TemplateContext, data, partia
 		}
 
 		const labelArr = context.tags[i].labelArr;
-		for (var j = 0; j < labelArr.length; j++) {
+		for (let j = 0; j < labelArr.length; j++) {
 			if (myData === undefined || myData === null) {
 				break;
 			}
 
-			var keyMatch = getKeyMatch(myData, labelArr[j].label);
+			const keyMatch = getKeyMatch(myData, labelArr[j].label);
 
 			if (keyMatch === undefined) {
 				// key didn't match hop out
@@ -105,7 +104,7 @@ export default function processTags(html, context: TemplateContext, data, partia
 				// if it's a function and we have () then we execute it
 				const argArray = labelArr[j].argString !== ""
 					? evalArgs(labelArr[j].argString, dataContext[dataContext.length - 1], globalData, extraData, helpers)
-					: undefined;
+					: [];
 
 				if (argArray instanceof Error) {
 					// invalid arg array, halt processing of this tag
@@ -113,7 +112,7 @@ export default function processTags(html, context: TemplateContext, data, partia
 					break;
 				}
 
-				myData = myData[keyMatch].apply(myData, argArray);
+				myData = myData[keyMatch](...argArray);
 			} else {
 				myData = myData[keyMatch];
 			}
@@ -141,7 +140,7 @@ export default function processTags(html, context: TemplateContext, data, partia
 
 				/*** Is array loop over array ***/
 				if (myData.data instanceof Array) {
-					for (var j = 0; j < myData.data.length; j++) {
+					for (let j = 0; j < myData.data.length; j++) {
 						returnArray.push(helpers.fill(myData.template, myData.data[j], partials, globalData));
 					}
 				} else {
@@ -165,19 +164,19 @@ export default function processTags(html, context: TemplateContext, data, partia
 						odd: false,
 						data: undefined
 					};
-					for (var j = 0; j < myData.length; j++) {
+					for (let j = 0; j < myData.length; j++) {
 						tempExtraData.row++;
 						tempExtraData.first = tempExtraData.row == 1 ? true : false;
 						tempExtraData.last = tempExtraData.row == myData.length ? true : false;
 						tempExtraData.odd = tempExtraData.row % 2 == 1 ? true : false;
 						tempExtraData.even = !tempExtraData.odd;
 						tempExtraData.data = myData[j];
-						var newData = dataContext.slice();
+						const newData = dataContext.slice();
 						newData.push(myData[j]);
 						returnArray.push(processTags(html, context.tags[i], newData, partials, tempExtraData, globalData, helpers));
 					}
 				} else if (myData instanceof Object && !isEmpty(myData)) {
-					var newData = dataContext.slice();
+					const newData = dataContext.slice();
 					newData.push(myData);
 					returnArray.push(processTags(html, context.tags[i], newData, partials, {}, globalData, helpers));
 				}

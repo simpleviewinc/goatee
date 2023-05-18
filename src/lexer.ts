@@ -27,7 +27,6 @@ export default function lexer(html: string): string {
 
 	let openCount = 0;
 	let c;
-	let lastC;
 
 	for (let i = 0; i < temp.length; i++) {
 		c = temp[i];
@@ -84,7 +83,6 @@ export default function lexer(html: string): string {
 			c = "}}";
 		}
 
-		lastC = c;
 		result += c;
 	}
 
