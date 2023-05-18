@@ -1,4 +1,4 @@
-const tagMatcher = /Ͼ([\?]?)([\$#!:\/\>\+%]?)([%]?)(-*?)([~\*@]?)(\w+(Ԓ\([\s\S]*?Ԓ\))?(\.\w+(Ԓ\([\s\S]*?Ԓ\))?)*?)?Ͽ/g
+const tagMatcher = /Ͼ([?]?)([$#!:/>+%]?)([%]?)(-*?)([~*@]?)(\w+(Ԓ\([\s\S]*?Ԓ\))?(\.\w+(Ԓ\([\s\S]*?Ԓ\))?)*?)?Ͽ/g
 const termMatcher = /(\w+)(Ԓ\([\s\S]*?Ԓ\))?(\.|$)/g
 
 interface Term {
@@ -27,14 +27,9 @@ export default function getTemplateContext(html: string) {
 	let myContext = context;
 	const previousContext: any[] = [];
 
-	while (true) {
-		const matches = tagMatcher.exec(html);
-
-		if (matches == null) {
-			break;
-		}
-
-		var wholeTag = matches[0];
+	let matches;
+	while ((matches = tagMatcher.exec(html)) !== null) {
+		const wholeTag = matches[0];
 		const elseTag = matches[1] === "?"; // if this tag is an else tag
 		const operator = matches[2];
 		const modifier = matches[3];
