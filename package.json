@@ -44,7 +44,8 @@
 		"style": "eslint .",
 		"style:fix": "eslint . --fix",
 		"sync-state": "bash ./src/scripts/sync-state",
-		"test": "mocha --require ts-node/register 'src/**/*.test.ts' --check-leaks"
+		"test": "mocha --require ts-node/register 'src/**/*.test.ts' --check-leaks --timeout 5000",
+		"types": "tsc -p tsconfig.json --noEmit"
 	},
 	"repository": {
 		"type": "git",

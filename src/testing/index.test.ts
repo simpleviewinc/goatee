@@ -213,13 +213,13 @@ describe(__filename, function() {
 		});
 
 		it("should allow declaration of partials", function() {
-			var html = "{{+foo}}{{foo}}{{bar()}}{{/foo}}{{>foo}}";
+			let html = "{{+foo}}{{foo}}{{bar()}}{{/foo}}{{>foo}}";
 
-			var result = fill(html, { foo: "yes", bar: function() { return "yes" } }, { foo: "fake" });
+			let result = fill(html, { foo: "yes", bar: function() { return "yes" } }, { foo: "fake" });
 			assert.equal(result, "yesyes");
 
-			var html = "{{+foo}}{{#data}}{{foo}}{{/data}}{{/foo}}{{>foo}}";
-			var result = fill(html, { data: [{ foo: "one" }, { foo: "two" }] });
+			html = "{{+foo}}{{#data}}{{foo}}{{/data}}{{/foo}}{{>foo}}";
+			result = fill(html, { data: [{ foo: "one" }, { foo: "two" }] });
 			assert.equal(result, "onetwo");
 		});
 
@@ -526,8 +526,6 @@ describe(__filename, function() {
 		});
 
 		it("should execute log helper", function() {
-			let result;
-
 			// monkeyPatch console.log
 			const logPatch = new Monkey("log");
 
@@ -542,12 +540,11 @@ describe(__filename, function() {
 
 			// bad variable should effectively error
 			logPatch.messages = [];
-			result = undefined;
 			fill("{{~log(bogus)}}", { foo: true });
 			assert.equal(logPatch.messages.length, 0);
 
 			const data = { a: "a" };
-			//@ts-expect-error
+			//@ts-expect-error - creating circular object
 			data.b = data;
 			fill("{{~log(data)}}", data);
 			assert.equal(logPatch.messages[0][0].a, "a");
@@ -558,10 +555,10 @@ describe(__filename, function() {
 		});
 
 		it("should stringify", function() {
-			var result = fill("{{~stringify(data.foo)}}", { foo: { key: "something", arr: [1,2] } });
+			let result = fill("{{~stringify(data.foo)}}", { foo: { key: "something", arr: [1,2] } });
 			assert.strictEqual(result, '{"key":"something","arr":[1,2]}');
 
-			var result = fill("{{~stringify(data.foo, null, '\t')}}", { foo: { key: "something", arr: [1,2] } });
+			result = fill("{{~stringify(data.foo, null, '\t')}}", { foo: { key: "something", arr: [1,2] } });
 			assert.strictEqual(result, '{\n\t"key": "something",\n\t"arr": [\n\t\t1,\n\t\t2\n\t]\n}');
 		});
 
@@ -604,11 +601,11 @@ describe(__filename, function() {
 		it("should optionally cache template processing", function() {
 			const template = "{{data}}";
 
-			var temp = new Goatee();
+			let temp = new Goatee();
 			assert.strictEqual(temp.fill(template, { data: "yes" }), "yes");
 			assert.deepEqual(temp._templateCache, {});
 
-			var temp = new Goatee({ cache: true });
+			temp = new Goatee({ cache: true });
 			assert.strictEqual(temp.fill(template, { data: "yes" }), "yes");
 			assert.strictEqual(temp._templateCache[template].raw, "{{data}}");
 			assert.strictEqual(temp._templateCache[template].html, "ϾdataϿ");
@@ -720,11 +717,15 @@ describe(__filename, function() {
 		});
 	});
 
-	it("Verify types", async () => {
+	it("Verify types", function() {
+		this.timeout(30000);
+
 		execSync("yarn run types", { stdio: "inherit" });
 	});
 
-	it("Run linter", async () => {
+	it("Run linter", function() {
+		this.timeout(30000);
+
 		execSync("yarn run style", { stdio: "inherit" });
 	});
 });
