@@ -28,7 +28,7 @@ class Helpers {
 			// if it's a function we have to wrap in another try catch to prevent failures
 			try {
 				var temp = arg1();
-			} catch(e) {
+			} catch (e) {
 				warn(e);
 				return; // return undefined if exec fails
 			}
@@ -40,7 +40,7 @@ class Helpers {
 		return temp;
 	}
 	partial(name) {
-		var self = this;
+		const self = this;
 
 		return self._partials[name].raw;
 	}
@@ -48,12 +48,12 @@ class Helpers {
 		console.log.apply(console, args);
 	}
 	setVar(arg1, arg2) {
-		var self = this;
+		const self = this;
 
 		self.var[arg1] = arg2;
 	}
 	fill(...args: Parameters<Goatee["fill"]>) {
-		var self = this;
+		const self = this;
 
 		return self._goatee.fill.apply(self._goatee, args);
 	}

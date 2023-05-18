@@ -8,11 +8,11 @@ function getKeyMatch(obj, key) {
 		return key;
 	}
 
-	var lcaseKey = key.toLowerCase();
-	var map = {};
+	const lcaseKey = key.toLowerCase();
+	const map = {};
 
-	for(var prop in obj) {
-		var temp = prop.toLowerCase();
+	for (const prop in obj) {
+		const temp = prop.toLowerCase();
 		if (temp === lcaseKey) {
 			return prop;
 		}
@@ -23,8 +23,8 @@ function getKeyMatch(obj, key) {
 }
 
 function arrayToString(arr) {
-	var str = "";
-	for(var i = 0; i < arr.length; i++) {
+	let str = "";
+	for (let i = 0; i < arr.length; i++) {
 		str += arr[i];
 	}
 
@@ -33,16 +33,16 @@ function arrayToString(arr) {
 
 function isEmpty(obj) {
 	return Object.keys(obj).length === 0;
-};
+}
 
 export default function processTags(html, context: TemplateContext, data, partials, extraData, globalData, helpers: Helpers) {
-	var returnArray: string[] = [];
+	const returnArray: string[] = [];
 
 	// keeps track of whether we're in an if/else block and a block previous to this passed it's condition
-	var ifElseActivated = false;
+	let ifElseActivated = false;
 
-	var position = context.innerStart;
-	for(var i = 0; i < context.tags.length; i++) {
+	let position = context.innerStart;
+	for (let i = 0; i < context.tags.length; i++) {
 		if (context.tags[i].elseTag === false) {
 			ifElseActivated = false;
 		}
@@ -67,7 +67,7 @@ export default function processTags(html, context: TemplateContext, data, partia
 		}
 
 		var myData;
-		var dataContext = data;
+		let dataContext = data;
 		if (context.tags[i].lookup === "*") {
 			myData = globalData;
 		} else if (context.tags[i].lookup === "@") {
@@ -81,9 +81,9 @@ export default function processTags(html, context: TemplateContext, data, partia
 			myData = dataContext[dataContext.length - 1];
 		}
 
-		var labelArr = context.tags[i].labelArr;
-		for(var j = 0; j < labelArr.length; j++) {
-			if (myData === undefined || myData === null){
+		const labelArr = context.tags[i].labelArr;
+		for (var j = 0; j < labelArr.length; j++) {
+			if (myData === undefined || myData === null) {
 				break;
 			}
 
@@ -119,7 +119,7 @@ export default function processTags(html, context: TemplateContext, data, partia
 			}
 		}
 
-		var typeofMyData = typeof myData;
+		const typeofMyData = typeof myData;
 
 		if (context.tags[i].command === "" || context.tags[i].command === "%") {
 			if (context.tags[i].elseTag === true && ifElseActivated === false) {
@@ -141,7 +141,7 @@ export default function processTags(html, context: TemplateContext, data, partia
 
 				/*** Is array loop over array ***/
 				if (myData.data instanceof Array) {
-					for(var j = 0; j < myData.data.length; j++) {
+					for (var j = 0; j < myData.data.length; j++) {
 						returnArray.push(helpers.fill(myData.template, myData.data[j], partials, globalData));
 					}
 				} else {
@@ -150,22 +150,22 @@ export default function processTags(html, context: TemplateContext, data, partia
 			}
 		} else if (context.tags[i].command === "+") {
 			partials[context.tags[i].label] = {
-				html : context.tags[i].inner,
-				raw : unlex(context.tags[i].inner),
-				context : getTemplateContext(context.tags[i].inner)
+				html: context.tags[i].inner,
+				raw: unlex(context.tags[i].inner),
+				context: getTemplateContext(context.tags[i].inner)
 			}
 		} else if (context.tags[i].command === "#") {
 			if (typeof myData != "undefined") {
 				if (myData instanceof Array) {
-					var tempExtraData = {
-						row : 0,
-						first : false,
-						last : false,
-						even : false,
-						odd : false,
+					const tempExtraData = {
+						row: 0,
+						first: false,
+						last: false,
+						even: false,
+						odd: false,
 						data: undefined
 					};
-					for(var j = 0; j < myData.length; j++) {
+					for (var j = 0; j < myData.length; j++) {
 						tempExtraData.row++;
 						tempExtraData.first = tempExtraData.row == 1 ? true : false;
 						tempExtraData.last = tempExtraData.row == myData.length ? true : false;
@@ -231,7 +231,7 @@ export default function processTags(html, context: TemplateContext, data, partia
 		returnArray.push(html.substring(position, context.innerEnd));
 	}
 
-	var result = arrayToString(returnArray);
+	const result = arrayToString(returnArray);
 
 	return result;
-};
+}

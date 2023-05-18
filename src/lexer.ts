@@ -15,21 +15,21 @@ function lexerReplace(val: string) {
 // lexes the template to detect opening and closing tags and parens
 export default function lexer(html: string): string {
 	// convert open close to single chars to make algorithm easier
-	var temp = html.replace(lexerRegex, lexerReplace);
+	const temp = html.replace(lexerRegex, lexerReplace);
 
-	var result = "";
+	let result = "";
 
-	var inTag = false;
-	var inParen = false;
-	var inSingle = false;
-	var inDouble = false;
-	var inComment = false;
+	let inTag = false;
+	let inParen = false;
+	let inSingle = false;
+	let inDouble = false;
+	let inComment = false;
 
-	var openCount = 0;
-	var c;
-	var lastC;
+	let openCount = 0;
+	let c;
+	let lastC;
 
-	for(var i = 0; i < temp.length; i++) {
+	for (let i = 0; i < temp.length; i++) {
 		c = temp[i];
 
 		if (inComment && c === commentClose) {

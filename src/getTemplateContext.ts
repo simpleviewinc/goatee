@@ -16,18 +16,18 @@ export interface TemplateContext {
 }
 
 export default function getTemplateContext(html: string) {
-	var context: TemplateContext = {
-		tags : [],
-		start : 0, // the character index that the tag starts at
-		inner : html, // the content between the closing and opening tag
-		innerStart : 0, // the character index where the content of the inner part of the tag starts
-		innerEnd : html.length, // the character index where the content of the inner part of the tag ends
-		end : html.length // the character index of the end of the closing tag
+	const context: TemplateContext = {
+		tags: [],
+		start: 0, // the character index that the tag starts at
+		inner: html, // the content between the closing and opening tag
+		innerStart: 0, // the character index where the content of the inner part of the tag starts
+		innerEnd: html.length, // the character index where the content of the inner part of the tag ends
+		end: html.length // the character index of the end of the closing tag
 	};
-	var myContext = context;
-	var previousContext: any[] = [];
+	let myContext = context;
+	const previousContext: any[] = [];
 
-	while(true) {
+	while (true) {
 		const matches = tagMatcher.exec(html);
 
 		if (matches == null) {
@@ -35,16 +35,16 @@ export default function getTemplateContext(html: string) {
 		}
 
 		var wholeTag = matches[0];
-		var elseTag = matches[1] === "?"; // if this tag is an else tag
-		var operator = matches[2];
-		var modifier = matches[3];
-		var backTrack = matches[4];
-		var lookup = matches[5];
-		var tagContent = matches[6];
-		var ifStarterTag = [":", "!"].indexOf(operator) > -1; // if this tag is the opening of an if/else block
-		var ifElseTag = elseTag || ifStarterTag;
+		const elseTag = matches[1] === "?"; // if this tag is an else tag
+		const operator = matches[2];
+		const modifier = matches[3];
+		const backTrack = matches[4];
+		const lookup = matches[5];
+		const tagContent = matches[6];
+		const ifStarterTag = [":", "!"].indexOf(operator) > -1; // if this tag is the opening of an if/else block
+		const ifElseTag = elseTag || ifStarterTag;
 
-		var exitContext = function() {
+		const exitContext = function() {
 			myContext.end = wholeTag.length + matches.index;
 			myContext.innerEnd = matches.index;
 			myContext.inner = html.substring(myContext.innerStart, myContext.innerEnd);
@@ -58,17 +58,17 @@ export default function getTemplateContext(html: string) {
 		}
 
 		if (operator != "/") {
-			var labelArr: Term[] = [];
+			const labelArr: Term[] = [];
 
-			while(tagContent !== undefined) {
-				var termMatch = termMatcher.exec(tagContent);
+			while (tagContent !== undefined) {
+				const termMatch = termMatcher.exec(tagContent);
 
 				if (termMatch === null) {
 					break;
 				}
 
 				const term: Term = {
-					label : termMatch[1]
+					label: termMatch[1]
 				};
 
 				if (termMatch[2] !== undefined) {
@@ -80,20 +80,20 @@ export default function getTemplateContext(html: string) {
 			}
 
 			myContext.tags.push({
-				label : tagContent,
-				labelArr : labelArr,
-				elseTag : elseTag,
-				ifElseTag : ifElseTag,
-				ifStarterTag : ifStarterTag,
-				backTrack : backTrack.length,
-				lookup : lookup,
-				command : operator,
-				modifier : modifier,
-				start : matches.index,
-				end : wholeTag.length + matches.index,
-				innerStart : wholeTag.length + matches.index,
-				innerEnd : undefined,
-				tags : []
+				label: tagContent,
+				labelArr: labelArr,
+				elseTag: elseTag,
+				ifElseTag: ifElseTag,
+				ifStarterTag: ifStarterTag,
+				backTrack: backTrack.length,
+				lookup: lookup,
+				command: operator,
+				modifier: modifier,
+				start: matches.index,
+				end: wholeTag.length + matches.index,
+				innerStart: wholeTag.length + matches.index,
+				innerEnd: undefined,
+				tags: []
 			});
 
 			// if we have an operator which needs a new context, step inside

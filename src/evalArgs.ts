@@ -18,7 +18,7 @@ const maskArgs = [
 ];
 
 const maskedValues: undefined[] = [];
-for(var i = 0; i < maskArgs.length; i++) {
+for (let i = 0; i < maskArgs.length; i++) {
 	maskedValues.push(undefined);
 }
 
@@ -27,11 +27,12 @@ export default function evalArgs(str, data, global, extra, helpers) {
 	fnArgs.push(...maskArgs);
 	fnArgs.push("data", "global", "extra", "helpers", "return [" + str + "]");
 
+	let temp;
 	try {
 		// create a function using our array of arguments and fn string
-		var fn = new (Function.prototype.bind.apply(Function, fnArgs));
+		const fn = new (Function.prototype.bind.apply(Function, fnArgs));
 		// exec the function passing our relevant keys and the masked keys, this generates an array of args
-		var temp = fn.apply(null, maskedValues.concat([data, global, extra, helpers]));
+		temp = fn.apply(null, maskedValues.concat([data, global, extra, helpers]));
 	} catch (e) {
 		warn(e);
 		return e;
