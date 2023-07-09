@@ -10,7 +10,6 @@
 	"exports": {
 		".": {
 			"types": "./dist/types/index.d.ts",
-			"import": "./dist/esm/index.js",
 			"default": "./dist/cjs/index.js"
 		}
 	},
@@ -35,7 +34,7 @@
 		"node": ">=0.10.x"
 	},
 	"scripts": {
-		"build": "yarn run build:cjs && yarn run build:amd && yarn run build:esm && yarn run build:types",
+		"build": "yarn run build:cjs && yarn run build:amd && yarn run build:types",
 		"build:amd": "rm -rf ./dist/amd && rollup --config rollup.config.ts --configPlugin typescript",
 		"build:cjs": "rm -rf ./dist/cjs && tsc --project ./tsconfig.cjs.json",
 		"build:esm": "rm -rf ./dist/esm && tsc --project ./tsconfig.esm.json",
