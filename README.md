@@ -6,21 +6,21 @@ Powerful yet simple templating system with Mustache style syntax and many more f
 
 # Documentation
 
-* [Api Documentation](#api_documentation)
-    * [Fill](#api_documentation_fill)
+* [Api Documentation](#api-documentation)
+    * [Fill](#fill)
     * [Goatee](#api_documentation_goatee)
 * [Tags](#tags)
     * [Quick Reference](#tags_quick_reference)
     * [Understanding Tags](#tags_understanding_tags)
     * [JS Expressions](#tags_js_expressions)
-* [Tag Reference](#tag_reference)
+* [Tag Quick Reference](#tag-quick-reference)
 
 # Features
 
-0. Works client-side (traditional and requirejs), and within Node
-0. Super simple syntax.
-0. Fills templates based on strings, does not require any specific folder structure.
-0. Similar syntax to Mustache and Handlebars.
+1. Works client-side (traditional and requirejs), and within Node
+1. Super simple syntax.
+1. Fills templates based on strings, does not require any specific folder structure.
+1. Similar syntax to Mustache and Handlebars.
 
 # Getting started
 
@@ -50,11 +50,11 @@ require(["goatee"], function(goatee) {
 </script>
 ```
 
-<a name="api_documentation">
 # API Documentation
 
-<a name="api_documentation_fill">
-### goatee.fill(templateString, data, partials, globalData)
+### Fill
+
+`goatee.fill(templateString, data, partials, globalData)`
 
 Fills a template with data.
 
@@ -65,8 +65,9 @@ Returns `string`.
 * `partials` - `object` - `default {}` - Object with keys containing partials, sub-templates to be used within the template. See partials for more information.
 * `globalData` - `object` - `defaults to value passed to data` - Object with global data which can be accessed anywhere within the template.
 
-<a name="api_documentation_goatee">
-### goatee.Goatee
+### Goatee
+
+`goatee.Goatee`
 
 You can add plugins to Goatee allowing you to access complex code within your templates. If you need to do so you will need to create an instance of goatee to store your plugins.
 
@@ -106,28 +107,25 @@ module.exports = g;
 
 Now, downstream you can simply `require("myGoatee.js")` and it will have the plugins loaded in for you.
 
-<a name="tags">
 ## Tags
 
-<a name="tags_quick_reference">
 ### Tag Quick Reference
 
-0. `{{key}}` - Output variable
-0. `{{:key}} {{/key}}` - Positive conditional.
-0. `{{!key}} {{/key}}` - Negative conditional.
-0. `{{:key}} {{?:key2}} {{?!key2}} {{?}} {{/}}` - Complex if/else if/else conditionals.
-0. `{{>key}}`- Partial.
-0. `{{+key}} {{/key}}` - Custom partial.
-0. `{{*key}}` - Global data.
-0. `{{#key}} {{key}}` - Section, object or array.
-0. `{{%key}}` - HTML encode (`'><&"`)
-0. `{{%%key}}` - URL encode using encodeURIComponent in addition to encoding the `'` character
-0. `{{@key}}` - Extra data during array iteration.
-0. `{{~key}}` - Helpers.
-0. `{{$}} {{/key}}` - Preserve.
-0. `{{---key}}` - Reach up X number of scopes based on count of `-`.
+1. `{{key}}` - Output variable
+1. `{{:key}} {{/key}}` - Positive conditional.
+1. `{{!key}} {{/key}}` - Negative conditional.
+1. `{{:key}} {{?:key2}} {{?!key2}} {{?}} {{/}}` - Complex if/else if/else conditionals.
+1. `{{>key}}`- Partial.
+1. `{{+key}} {{/key}}` - Custom partial.
+1. `{{*key}}` - Global data.
+1. `{{#key}} {{key}}` - Section, object or array.
+1. `{{%key}}` - HTML encode (`'><&"`)
+1. `{{%%key}}` - URL encode using encodeURIComponent in addition to encoding the `'` character
+1. `{{@key}}` - Extra data during array iteration.
+1. `{{~key}}` - Helpers.
+1. `{{$}} {{/key}}` - Preserve.
+1. `{{---key}}` - Reach up X number of scopes based on count of `-`.
 
-<a name="tags_understanding_tags">
 ### Understanding tags
 
 All tags follows the pattern `{{[operator][lookup][locatorChain]}}`.
@@ -146,24 +144,23 @@ All tags follows the pattern `{{[operator][lookup][locatorChain]}}`.
 
 Valid Tag Examples
 
-0. `{{foo}}` - Output a simple variable
-0. `{{%foo}}` - Output a variable and encode.
-0. `{{#foo().baz}} {{/}}` - Iterate over the value at `foo().baz` in normal data.
-0. `{{#*data.bar()}} {{/}}` - Iterate over the value at `globalData.bar`.
-0. `{{foo(data.bar).baz}}` - Output a variable which is contained by calling the function passed at `foo` with an argument which is the value passed at `bar` and then get `baz` out of that result.
-0. `{{:~var.test}} {{/}}` - Test if a helper declared var is truthy.
+1. `{{foo}}` - Output a simple variable
+1. `{{%foo}}` - Output a variable and encode.
+1. `{{#foo().baz}} {{/}}` - Iterate over the value at `foo().baz` in normal data.
+1. `{{#*data.bar()}} {{/}}` - Iterate over the value at `globalData.bar`.
+1. `{{foo(data.bar).baz}}` - Output a variable which is contained by calling the function passed at `foo` with an argument which is the value passed at `bar` and then get `baz` out of that result.
+1. `{{:~var.test}} {{/}}` - Test if a helper declared var is truthy.
 
-<a name="tags_js_expressions">
 ### JS Expressions
 
 You can execute arbitrary javascript within certain tags. In doing so it will `eval` the contents but many global variables are not accessible such as `require` `window` `setTimeout` etc.
 
 **NOTE:** While in JS expressions all of your data is namespaced.
 
-0. `data.` - Accesses the data at the current context.
+1. `data.` - Accesses the data at the current context.
 1. `global.` - Access the data in the globalData context (`*`).
-2. `helpers.` - Access the helpers (`~`).
-3. `extra.` - Access the extraData (`@`).
+1. `helpers.` - Access the helpers (`~`).
+1. `extra.` - Access the extraData (`@`).
 
 **NOTE:** JS expressions can not return async.
 
@@ -180,7 +177,6 @@ Result. Notice how we pass in the moment object and the date. The key myData is 
 Tuesday, February 1, 2011 12:00 AM
 ```
 
-<a name="tag_reference">
 ## Tag Reference
 
 ### Output variable `{{var}}`
@@ -206,10 +202,10 @@ If the value of `var` evaluates to true, see conditions below, the it will run t
 
 The following cases will run the contents of the tag.
 
-0. Arrays with length > 0
-0. Objects that have keys.
-0. Strings which are not "" and are not "false".
-0. Any number.
+1. Arrays with length > 0
+1. Objects that have keys.
+1. Strings which are not "" and are not "false".
+1. Any number.
 
 Template
 ```html
@@ -232,11 +228,11 @@ If the value of `var` evaluates to false, see conditions below, the it will run 
 
 The following cases will run the contents of the tag.
 
-0. Arrays with length === 0
-0. Objects that have 0 keys.
-0. Strings which are "" or are "false".
-0. `undefined`
-0. `false`
+1. Arrays with length === 0
+1. Objects that have 0 keys.
+1. Strings which are "" or are "false".
+1. `undefined`
+1. `false`
 
 ### If/Else If/Else `{{:var}} exists {{?}} not exists {{/var}}`
 
@@ -279,7 +275,7 @@ Sections are used for processing arrays and objects, changing the current contex
 
 #### Objects
 
-0. If the value is an object, then the context will become what is at the value of var.
+1. If the value is an object, then the context will become what is at the value of var.
 
 Template
 ```html
@@ -299,14 +295,14 @@ Result
 
 #### Arrays
 
-0. If the value of tag variable is an array then contentx of the tag is run for each item in the array. In addition, the current context will refer to the current item.
-0. The following special keys are avaiable inside arrays. All row values are 1 based.
-    0. `@odd` - True if the current row being processed is odd (1st, 3rd, 5th row).
+1. If the value of tag variable is an array then contentx of the tag is run for each item in the array. In addition, the current context will refer to the current item.
+1. The following special keys are avaiable inside arrays. All row values are 1 based.
+    1. `@odd` - True if the current row being processed is odd (1st, 3rd, 5th row).
     1. `@even` - True if the current row being processed is even (2nd, 4th, 6th).
-    2. `@row` - The row of the current row being processed.
-    3. `@first` - If the row is the first in the array.
-    4. `@last` - If the row is the last in the array.
-    5. `@data` - References the current context data. Useful when iterating over arrays of strings or numbers.
+    1. `@row` - The row of the current row being processed.
+    1. `@first` - If the row is the first in the array.
+    1. `@last` - If the row is the last in the array.
+    1. `@data` - References the current context data. Useful when iterating over arrays of strings or numbers.
 
 Template
 ```html
@@ -373,8 +369,8 @@ There are times when you want to declare a partial within your template.
 
 Common use-cases
 
-0. Re-using a part of your template multiple times, such as paging buttons above and below a result set.
-0. Recursive elements within your template. This is used a lot when representing parent-child situations such as nested multi-level navigation.
+1. Re-using a part of your template multiple times, such as paging buttons above and below a result set.
+1. Recursive elements within your template. This is used a lot when representing parent-child situations such as nested multi-level navigation.
 
 Re-using a custom partial
 ```html
