@@ -10,7 +10,7 @@ Powerful yet simple templating system with Mustache style syntax and many more f
     * [Fill](#fill)
     * [Goatee](#goatee)
 * [Tags](#tags)
-    * [Quick Reference](#tags-quick-reference)
+    * [Quick Reference](#tag-quick-reference)
     * [Understanding Tags](#understanding-tags)
     * [JS Expressions](#js-expressions)
 
