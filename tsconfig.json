@@ -3,11 +3,7 @@
 	"compilerOptions": {
 		"baseUrl": "./",
 		"declaration": false,
-		"noImplicitAny": false,
-		"moduleResolution": "node16",
-		"lib": [
-			"DOM"
-		]
+		"noImplicitAny": false
 	},
 	"ts-node": {
 		"transpileOnly": true
