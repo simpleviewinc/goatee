@@ -8,12 +8,11 @@ Powerful yet simple templating system with Mustache style syntax and many more f
 
 * [Api Documentation](#api-documentation)
     * [Fill](#fill)
-    * [Goatee](#api_documentation_goatee)
+    * [Goatee](#goatee)
 * [Tags](#tags)
-    * [Quick Reference](#tags_quick_reference)
-    * [Understanding Tags](#tags_understanding_tags)
-    * [JS Expressions](#tags_js_expressions)
-* [Tag Quick Reference](#tag-quick-reference)
+    * [Quick Reference](#tags-quick-reference)
+    * [Understanding Tags](#understanding-tags)
+    * [JS Expressions](#js-expressions)
 
 # Features
 
