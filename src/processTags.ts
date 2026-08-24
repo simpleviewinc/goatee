@@ -102,14 +102,21 @@ export default function processTags(html, context: TemplateContext, data, partia
 
 			if (typeof myData[keyMatch] === "function" && labelArr[j].argString !== undefined) {
 				// if it's a function and we have () then we execute it
-				const argArray = labelArr[j].argString !== ""
-					? evalArgs(labelArr[j].argString, dataContext[dataContext.length - 1], globalData, extraData, helpers)
-					: [];
-
-				if (argArray instanceof Error) {
-					// invalid arg array, halt processing of this tag
+				let argArray;
+				if (labelArr[j].argString === "") {
+					argArray = [];
+				} else if (helpers._goatee._disableEvalArgs === true) {
+					// evalArgs disabled (e.g. browser CSP); halt processing of this tag
 					myData = undefined;
 					break;
+				} else {
+					argArray = evalArgs(labelArr[j].argString, dataContext[dataContext.length - 1], globalData, extraData, helpers);
+
+					if (argArray instanceof Error) {
+						// invalid arg array, halt processing of this tag
+						myData = undefined;
+						break;
+					}
 				}
 
 				myData = myData[keyMatch](...argArray);
