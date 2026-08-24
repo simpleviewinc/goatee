@@ -439,6 +439,24 @@ describe(__filename, function() {
 			assert.equal(warnPatch.messages[0][0], "broken is not defined");
 		});
 
+		it("should optionally disable evalArgs", function() {
+			const data = {
+				foo: function() { return "yes" },
+				bar: function(arg1) {
+					throw new Error("Should not get here");
+					return arg1;
+				}
+			}
+
+			const g = new Goatee({ disableEvalArgs: true });
+
+			// no-arg calls do not need evalArgs and should still work
+			assert.strictEqual(g.fill("{{foo()}}", data), "yes");
+			// calls with args require evalArgs and should be skipped
+			assert.strictEqual(g.fill("{{bar('no')}}", data), "");
+			assert.strictEqual(warnPatch.messages.length, 0);
+		});
+
 		it("should execute equal helper", function() {
 			// standard equality checks
 			assert.equal(fill("{{~equal(1,1)}}", {}), "true");

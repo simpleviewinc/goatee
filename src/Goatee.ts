@@ -5,11 +5,13 @@ import processTags from "./processTags";
 
 class Goatee {
 	_cache: any
+	_disableEvalArgs: boolean
 	_plugins: any
 	_locked: boolean
 	_templateCache: object
-	constructor({ cache = false } = {}) {
+	constructor({ cache = false, disableEvalArgs = false } = {}) {
 		this._cache = cache;
+		this._disableEvalArgs = disableEvalArgs;
 		this._plugins = {};
 		this._locked = false;
 		this._templateCache = {};
